@@ -8,3 +8,32 @@ body {
   background: #fff8f1;
   color: #1c1917;
 }
+
+/* Update banner (CARD-003) */
+.update-banner {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 12px;
+  background: #1c1917;
+  color: #fff8f1;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  z-index: 100;
+}
+
+.update-banner button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #c2410c;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+}

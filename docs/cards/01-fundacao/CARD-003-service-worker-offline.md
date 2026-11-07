@@ -7,7 +7,7 @@ camadas: [front]
 complexidade: M
 prioridade: mvp
 incerteza: media
-status: todo
+status: done
 requisitos: [RNF-offline, RNF-plataforma]
 depende_de: [CARD-001]
 ---

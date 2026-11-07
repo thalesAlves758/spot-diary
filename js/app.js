@@ -1,10 +1,14 @@
-// App entry point.
-// Service worker registration (CARD-003) and router (CARD-004) go here.
+// App entry point. The router (CARD-004) goes here.
 
 import { openDatabase } from './db/index.js';
 import { requestPersistentStorage } from './db/persistence.js';
+import { registerServiceWorker } from './sw-register.js';
+import { showUpdateBanner } from './ui/components/update-banner.js';
 
 async function start() {
+  registerServiceWorker({ onUpdate: showUpdateBanner })
+    .catch((error) => console.warn('Service worker:', error));
+
   const root = document.getElementById('app');
   try {
     await openDatabase();
