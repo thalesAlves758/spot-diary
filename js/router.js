@@ -54,6 +54,18 @@ export async function replace(path) {
 }
 
 /**
+ * Changes the query of the current screen (e.g. the selected tab) without a new history entry
+ * and without re-rendering. `params`: object or URLSearchParams; empty values are dropped.
+ */
+export function setQuery(params) {
+  const { path } = parseHash();
+  const entries = Object.entries(params instanceof URLSearchParams ? Object.fromEntries(params) : params)
+    .filter(([, value]) => value !== null && value !== undefined && value !== '');
+  const search = new URLSearchParams(entries).toString();
+  history.replaceState(history.state, '', '#' + path + (search ? `?${search}` : ''));
+}
+
+/**
  * Back button inside the app. If the app was opened directly on this screen (nothing to go back
  * to inside the app), goes to `fallback` instead of leaving the app.
  */
