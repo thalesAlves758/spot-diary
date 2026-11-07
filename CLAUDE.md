@@ -21,7 +21,7 @@ When implementing a card, read it plus the RF/RN items it references, respect `d
 - Tests are optional; pure functions in `js/services/` can be tested with Node's built-in runner: `node --test` (single file: `node --test path/to/file.test.js`).
 - Deployed to free static hosting with HTTPS (GitHub Pages / Netlify / Cloudflare Pages) — HTTPS is required for the service worker.
 
-## Architecture (planned, see CARD-001–004)
+## Architecture
 
 ```
 index.html, manifest.webmanifest, sw.js
@@ -38,6 +38,11 @@ Strict layering — this is what makes the future React migration (CARD-025) a U
 - `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.
+
+UI conventions (CARD-004):
+- Routes are registered in `js/app.js` with lazy `import()`. A screen module exports `render(root, { params, query })` and may return a cleanup function. Navigate with `navigate(path)` / `replace(path)` / `goBack(fallback)` from `js/router.js` — not by setting `location.hash` — so history depth stays correct (`goBack` never leaves the app when it was opened on a deep link).
+- Anything modal (dialogs, bottom sheets) must call `openOverlay(onBack)` and `release()` on close, so the Android back button closes the overlay instead of leaving the screen. `confirmDialog()` and `openBottomSheet()` already do this.
+- Build DOM with `h(tag, attrs, ...children)` from `js/ui/dom.js` (no innerHTML with user data); icons come from `js/ui/icons.js`.
 
 Key invariants that span layers:
 - IDs are `crypto.randomUUID()`; records carry ISO `createdAt`/`updatedAt` (merge-import resolves conflicts by most recent `updatedAt`); `db/util.js` `stamp()` sets them, while `bulkWrite` (import) writes records untouched.
