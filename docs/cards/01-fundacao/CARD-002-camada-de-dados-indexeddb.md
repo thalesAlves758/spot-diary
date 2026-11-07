@@ -7,7 +7,7 @@ camadas: [banco]
 complexidade: M
 prioridade: mvp
 incerteza: baixa
-status: todo
+status: done
 requisitos: [RN06, RNF-armazenamento]
 depende_de: [CARD-001]
 ---

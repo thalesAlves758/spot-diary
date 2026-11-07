@@ -35,7 +35,7 @@ js/ui/telas/, js/ui/componentes/
 ```
 
 Strict layering — this is what makes the future React migration (CARD-025) a UI-only rewrite:
-- `db/` → opens DB `diario-de-role`, stores `lugares` (indexes `nome`, `tipo`, `tags` multiEntry, `favorito`, `status`), `visitas` (`lugarId`, `data`), `meta` (keyPath `chave`: `schemaVersion`, `ultimoExportEm`). No business rules here.
+- `db/` → opens DB `diario-de-role`, stores `lugares` (indexes `nome`, `tipo`, `tags` multiEntry, `status` — no `favorito` index because booleans aren't valid IDB keys), `visitas` (`lugarId`, `data`), `meta` (keyPath `chave`: `schemaVersion`, `ultimoExportEm`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.
 
