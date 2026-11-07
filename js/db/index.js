@@ -28,6 +28,21 @@ const migrations = {
   },
 };
 
+const REQUIRED_STORES = ['places', 'visits', 'meta'];
+
+/**
+ * The database exists at the current version but doesn't have the expected stores
+ * (e.g. a development build created it with other store names). Never fixed automatically:
+ * that would mean deleting the user's data.
+ */
+export class SchemaMismatchError extends Error {
+  constructor(missing) {
+    super(`Database is missing object stores: ${missing.join(', ')}`);
+    this.name = 'SchemaMismatchError';
+    this.missing = missing;
+  }
+}
+
 let connection = null;
 
 /** Opens the database connection (only once). */
@@ -45,6 +60,13 @@ export function openDatabase() {
 
     req.onsuccess = () => {
       const db = req.result;
+      const missing = REQUIRED_STORES.filter((name) => !db.objectStoreNames.contains(name));
+      if (missing.length) {
+        db.close();
+        connection = null;
+        reject(new SchemaMismatchError(missing));
+        return;
+      }
       // Another tab opened a newer version: close this connection so it doesn't block the upgrade.
       db.onversionchange = () => {
         db.close();

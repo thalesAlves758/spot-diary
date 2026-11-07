@@ -1,6 +1,6 @@
 // App entry point: opens the database, registers the service worker and starts the router.
 
-import { openDatabase } from './db/index.js';
+import { openDatabase, SchemaMismatchError } from './db/index.js';
 import { requestPersistentStorage } from './db/persistence.js';
 import { registerServiceWorker } from './sw-register.js';
 import { route, startRouter } from './router.js';
@@ -23,7 +23,10 @@ async function start() {
     await openDatabase();
   } catch (error) {
     console.error(error);
-    root.textContent = 'Não foi possível abrir o banco de dados do app.';
+    root.textContent = error instanceof SchemaMismatchError
+      ? 'Os dados salvos neste navegador estão num formato antigo e incompatível. '
+        + 'Apague os dados do site (DevTools → Application → Storage → Clear site data) e recarregue.'
+      : 'Não foi possível abrir o banco de dados do app.';
     return;
   }
   requestPersistentStorage().catch((error) => console.warn('Persistent storage:', error));
