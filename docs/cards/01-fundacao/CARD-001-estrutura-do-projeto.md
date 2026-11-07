@@ -7,7 +7,7 @@ camadas: [front]
 complexidade: M
 prioridade: mvp
 incerteza: baixa
-status: todo
+status: done
 requisitos: [RNF-plataforma, RNF-privacidade, RNF-custo]
 depende_de: []
 ---
