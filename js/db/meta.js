@@ -1,16 +1,16 @@
-import { transacao, pedido } from './index.js';
+import { transaction, request } from './index.js';
 
-// Pares chave/valor do app: `schemaVersion`, `ultimoExportEm`, `armazenamentoPersistente`.
+// App key/value pairs: `schemaVersion`, `lastExportAt`, `persistentStorage`.
 const STORE = 'meta';
 
-/** Valor de uma chave, ou `undefined` se não existir. */
-export async function get(chave) {
-  const registro = await transacao(STORE, 'readonly', (tx) => pedido(tx.objectStore(STORE).get(chave)));
-  return registro?.valor;
+/** Value for a key, or `undefined` if it doesn't exist. */
+export async function get(key) {
+  const record = await transaction(STORE, 'readonly', (tx) => request(tx.objectStore(STORE).get(key)));
+  return record?.value;
 }
 
-export function set(chave, valor) {
-  return transacao(STORE, 'readwrite', (tx) => {
-    tx.objectStore(STORE).put({ chave, valor });
+export function set(key, value) {
+  return transaction(STORE, 'readwrite', (tx) => {
+    tx.objectStore(STORE).put({ key, value });
   });
 }

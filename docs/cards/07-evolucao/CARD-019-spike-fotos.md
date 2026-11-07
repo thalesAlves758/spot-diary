@@ -20,7 +20,7 @@ Fotos foram tiradas do MVP porque pesam no armazenamento e no backup. Antes de i
 ## O que fazer
 - Testar captura com `<input type="file" accept="image/*" capture>`.
 - Comprimir via canvas (ex.: largura máxima 1280 px, JPEG ~0,7) e medir o tamanho final (alvo de 300–500 KB).
-- Guardar como Blob no IndexedDB (store `fotos`) e checar a cota com `navigator.storage.estimate()`.
+- Guardar como Blob no IndexedDB (store `photos`) e checar a cota com `navigator.storage.estimate()`.
 - Decidir limite de fotos por visita e o formato do backup.
 
 ## Critérios de aceite

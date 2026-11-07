@@ -18,7 +18,7 @@ depende_de: [CARD-008, CARD-010]
 A "lista VIP": marcar com um coração os lugares preferidos, em qualquer status.
 
 ## O que fazer
-- Coração clicável no card (T1) e no detalhe (T4); alterna `favorito` e atualiza `atualizadoEm`.
+- Coração clicável no card (T1) e no detalhe (T4); alterna `favorite` e atualiza `updatedAt`.
 - Funciona em "Quero ir" e em "Já fui".
 - Tocar no coração do card não abre o detalhe.
 

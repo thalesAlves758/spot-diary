@@ -203,45 +203,55 @@ São 6 telas no MVP; a tela de início concentra lista, busca e acesso aos filtr
 
 ## Modelo de dados
 
-Duas coleções separadas, Lugar e Visita, ligadas por `lugarId` (1 lugar → N visitas). O IndexedDB é não relacional, então a relação é mantida pelo app: um índice em `visitas.lugarId` faz a busca, e a exclusão em cascata roda numa transação.
+Duas coleções separadas, Lugar e Visita, ligadas por `placeId` (1 lugar → N visitas). O IndexedDB é não relacional, então a relação é mantida pelo app: um índice em `visits.placeId` faz a busca, e a exclusão em cascata roda numa transação.
+
+Código, nomes de campos e valores gravados são em inglês; só os textos da interface ficam em português.
 
 ```mermaid
 erDiagram
-    LUGAR ||--o{ VISITA : tem
-    LUGAR {
+    PLACE ||--o{ VISIT : has
+    PLACE {
         string id PK
-        string nome
-        string tipo
+        string name
+        string type
         string status
         array tags
-        object endereco
-        boolean favorito
-        datetime criadoEm
-        datetime atualizadoEm
+        object address
+        boolean favorite
+        datetime createdAt
+        datetime updatedAt
     }
-    VISITA {
+    VISIT {
         string id PK
-        string lugarId FK
-        date data
-        int nota
-        boolean voltaria
-        string comentario
-        datetime criadoEm
-        datetime atualizadoEm
+        string placeId FK
+        date date
+        int rating
+        boolean wouldReturn
+        string comment
+        datetime createdAt
+        datetime updatedAt
     }
 ```
+
+| Campo | Significado | Valores |
+| --- | --- | --- |
+| `place.type` | Tipo (RN02) | `bar` Bar · `restaurant` Restaurante · `pizzeria` Pizzaria · `burger` Hamburgueria · `cafe` Café · `snack_bar` Lanchonete · `nightclub` Balada · `other` Outro |
+| `place.status` | Status (RN04) | `want_to_go` Quero ir · `been_there` Já fui |
+| `visit.date` | Data da visita | `YYYY-MM-DD` |
+| `visit.rating` | Nota | inteiro de 1 a 5 |
+| `visit.wouldReturn` | Voltaria? | `true` / `false` |
 
 **Object stores no IndexedDB**
 
 | Store | Chave | Índices | Observação |
 | --- | --- | --- | --- |
-| `lugares` | `id` (UUID) | `nome`, `tipo`, `tags` (multiEntry), `favorito` | Status é gravado (quero_ir / ja_fui); média e última visita são calculadas |
-| `visitas` | `id` (UUID) | `lugarId`, `data` | Toda visita aponta para um lugar existente |
-| `meta` | `chave` | — | Guarda `schemaVersion` e `ultimoExportEm` |
+| `places` | `id` (UUID) | `name`, `type`, `tags` (multiEntry), `status` | Status é gravado; média e última visita são calculadas. Sem índice em `favorite` (boolean não é chave válida no IndexedDB) |
+| `visits` | `id` (UUID) | `placeId`, `date` | Toda visita aponta para um lugar existente |
+| `meta` | `key` | — | Guarda `schemaVersion`, `lastExportAt` e `persistentStorage` |
 
 - IDs são UUIDs gerados no aparelho (`crypto.randomUUID()`), o que permite mesclar backups sem colisão.
 - A lista de tags é derivada dos lugares; não existe cadastro separado de tags no MVP.
-- O endereço é um objeto embutido no lugar: `{ logradouro, numero, complemento, bairro, cidade, uf }`.
+- O endereço é um objeto embutido no lugar: `{ street, number, complement, neighborhood, city, state }`.
 
 **Formato do backup (JSON)**
 
@@ -249,9 +259,9 @@ erDiagram
 {
   "app": "diario-de-role",
   "schemaVersion": 1,
-  "exportadoEm": "2026-11-07T15:30:00-03:00",
-  "lugares": [ { "id": "…", "nome": "…", "tipo": "Bar", "status": "ja_fui", "tags": ["rooftop"], "endereco": { "bairro": "…", "cidade": "…", "uf": "MG" }, "favorito": true } ],
-  "visitas": [ { "id": "…", "lugarId": "…", "data": "2026-11-01", "nota": 5, "voltaria": true } ]
+  "exportedAt": "2026-11-07T18:30:00.000Z",
+  "places": [ { "id": "…", "name": "…", "type": "bar", "status": "been_there", "tags": ["rooftop"], "address": { "neighborhood": "…", "city": "…", "state": "MG" }, "favorite": true } ],
+  "visits": [ { "id": "…", "placeId": "…", "date": "2026-11-01", "rating": 5, "wouldReturn": true } ]
 }
 ```
 

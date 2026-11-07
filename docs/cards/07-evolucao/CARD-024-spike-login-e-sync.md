@@ -19,7 +19,7 @@ Usar o app em mais de um aparelho exige conta e sincronização, o que muda a re
 
 ## O que fazer
 - Avaliar opções (Firebase, Supabase, backend próprio) considerando custo zero e LGPD com dados em servidor.
-- Definir a estratégia de conflito, aproveitando os IDs UUID e o `atualizadoEm` que já existem.
+- Definir a estratégia de conflito, aproveitando os IDs UUID e o `updatedAt` que já existem.
 
 ## Critérios de aceite
 - [ ] Nota em `docs/` com a opção escolhida, o modelo de sync, os impactos de privacidade e a quebra em cards.

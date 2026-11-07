@@ -11,7 +11,7 @@ Diário de Rolê is a personal, offline-first PWA for tracking bars/restaurants 
 
 When implementing a card, read it plus the RF/RN items it references, respect `depende_de`, and update its `status` (in the card and in the `_index.md` table) when done. Cards marked `prioridade: depois` (photos, map, login/sync, React) are out of MVP scope — don't build them early.
 
-All docs, UI text, and domain identifiers are in Brazilian Portuguese (`lugares`, `visitas`, `nota`, `voltaria`, `quero_ir`/`ja_fui`). Keep code identifiers in Portuguese to match.
+**Language:** all code is in English: identifiers, file names, comments, routes, and the data model (stores `places`/`visits`/`meta`, fields like `name`, `type`, `placeId`, `rating`, `wouldReturn`, status values `want_to_go`/`been_there`, type codes like `bar`/`restaurant`, backup JSON keys). Only user-facing UI text is Brazilian Portuguese. Docs (refinamento, cards) are written in Portuguese but reference code names in English; the code/label mapping is in the data model section of the refinamento.
 
 ## Stack and commands
 
@@ -27,23 +27,23 @@ All docs, UI text, and domain identifiers are in Brazilian Portuguese (`lugares`
 index.html, manifest.webmanifest, sw.js
 css/app.css
 js/app.js            entry point; registers SW
-js/router.js         hash routes: #/  #/lugar/novo  #/lugar/:id  #/lugar/:id/editar
-                     #/lugar/:id/visita/nova  #/visita/:id/editar  #/backup
+js/router.js         hash routes: #/  #/place/new  #/place/:id  #/place/:id/edit
+                     #/place/:id/visit/new  #/visit/:id/edit  #/backup
 js/db/               only layer that touches IndexedDB
 js/services/         pure business rules, no DOM
-js/ui/telas/, js/ui/componentes/
+js/ui/screens/, js/ui/components/
 ```
 
 Strict layering — this is what makes the future React migration (CARD-025) a UI-only rewrite:
-- `db/` → opens DB `diario-de-role`, stores `lugares` (indexes `nome`, `tipo`, `tags` multiEntry, `status` — no `favorito` index because booleans aren't valid IDB keys), `visitas` (`lugarId`, `data`), `meta` (keyPath `chave`: `schemaVersion`, `ultimoExportEm`). No business rules here.
+- `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.
 
 Key invariants that span layers:
-- IDs are `crypto.randomUUID()`; records carry ISO `criadoEm`/`atualizadoEm` (merge-import resolves conflicts by most recent `atualizadoEm`).
-- Status is stored; average (1 decimal) and last visit are computed. First visit flips `quero_ir` → `ja_fui`; deleting visits never flips it back (RN04).
-- Deleting a lugar cascades to its visitas in a single transaction (RN06). Import validates everything first and writes in one transaction — on failure nothing changes.
-- Tags are case-insensitive and derived from lugares (no separate tag store). Lugar names are unique, compared case-insensitively and trimmed (RN10).
+- IDs are `crypto.randomUUID()`; records carry ISO `createdAt`/`updatedAt` (merge-import resolves conflicts by most recent `updatedAt`); `db/util.js` `stamp()` sets them, while `bulkWrite` (import) writes records untouched.
+- Status is stored; average (1 decimal) and last visit are computed. First visit flips `want_to_go` → `been_there`; deleting visits never flips it back (RN04).
+- Deleting a place cascades to its visits in a single transaction (RN06). Import validates everything first and writes in one transaction — on failure nothing changes.
+- Tags are case-insensitive and derived from places (no separate tag store). Place names are unique, compared case-insensitively and trimmed (RN10).
 - `schemaVersion` lives in both `meta` and the backup JSON (`"app": "diario-de-role"`); schema changes go through `onupgradeneeded` migrations.
 
 ## Service worker gotchas

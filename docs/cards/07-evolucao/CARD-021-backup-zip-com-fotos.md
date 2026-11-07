@@ -18,7 +18,7 @@ depende_de: [CARD-017, CARD-020]
 Com fotos, o backup deixa de caber num JSON.
 
 ## O que fazer
-- Export gera `.zip` com o JSON e uma pasta `fotos/`, usando JSZip servido localmente (sem CDN, para funcionar offline).
+- Export gera `.zip` com o JSON e uma pasta `photos/`, usando JSZip servido localmente (sem CDN, para funcionar offline).
 - Import aceita `.zip` (v2) e `.json` (v1, compatibilidade).
 
 ## Critérios de aceite

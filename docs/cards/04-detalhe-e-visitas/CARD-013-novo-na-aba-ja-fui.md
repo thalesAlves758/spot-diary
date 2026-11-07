@@ -18,7 +18,7 @@ depende_de: [CARD-005, CARD-011]
 Para o lugar que você foi sem planejar (Fluxo 2): cadastrar e já registrar a visita em sequência.
 
 ## O que fazer
-- O botão "Novo" na aba "Já fui" abre o T3 com um indicador (ex.: `#/lugar/novo?jaFui=1`).
+- O botão "Novo" na aba "Já fui" abre o T3 com um indicador (ex.: `#/place/new?beenThere=1`).
 - Ao salvar o lugar, navega direto para o T5 do lugar recém-criado.
 - Ao salvar a visita, vale a regra do CARD-011 (lugar vai para "Já fui") e o app abre o detalhe.
 - Se o usuário sair do T5 sem salvar, o lugar fica em "Quero ir".

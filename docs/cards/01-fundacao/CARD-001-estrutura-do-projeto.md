@@ -25,7 +25,7 @@ Base do PWA, sem etapa de build: estrutura de pastas em camadas (`db/`, `service
   sw.js                (vazio por enquanto, CARD-003)
   css/app.css
   js/app.js
-  js/db/  js/services/  js/ui/telas/  js/ui/componentes/
+  js/db/  js/services/  js/ui/screens/  js/ui/components/
   icons/
   docs/                (refinamento e cards)
   ```

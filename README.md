@@ -14,8 +14,8 @@ css/app.css
 js/app.js               ponto de entrada
 js/db/                  único ponto que conhece o IndexedDB
 js/services/            regras de negócio puras (sem DOM)
-js/ui/telas/            telas
-js/ui/componentes/      componentes reutilizáveis
+js/ui/screens/          telas
+js/ui/components/       componentes reutilizáveis
 icons/
 docs/
 ```

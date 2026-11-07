@@ -1,22 +1,22 @@
-/** Novo ID gerado no aparelho (UUID v4). */
-export function novoId() {
+/** New ID generated on the device (UUID v4). */
+export function newId() {
   return crypto.randomUUID();
 }
 
-/** Data e hora atual em ISO 8601 (UTC). */
-export function agoraISO() {
+/** Current date and time in ISO 8601 (UTC). */
+export function nowISO() {
   return new Date().toISOString();
 }
 
 /**
- * Prepara um registro para gravar: gera `id` e `criadoEm` se faltarem e renova `atualizadoEm`.
- * Não altera o objeto recebido.
+ * Prepares a record for writing: fills `id` and `createdAt` if missing and refreshes `updatedAt`.
+ * Does not mutate the given object.
  */
-export function carimbar(registro, agora = agoraISO()) {
+export function stamp(record, now = nowISO()) {
   return {
-    ...registro,
-    id: registro.id ?? novoId(),
-    criadoEm: registro.criadoEm ?? agora,
-    atualizadoEm: agora,
+    ...record,
+    id: record.id ?? newId(),
+    createdAt: record.createdAt ?? now,
+    updatedAt: now,
   };
 }

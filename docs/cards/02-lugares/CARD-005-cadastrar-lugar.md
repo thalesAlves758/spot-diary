@@ -18,23 +18,23 @@ depende_de: [CARD-002, CARD-004]
 Primeira fatia de ponta a ponta: o usuário cadastra um lugar que quer conhecer (tela T3 em modo criação).
 
 ## O que fazer
-- Tela T3 em `#/lugar/novo` com:
+- Tela T3 em `#/place/new` com:
   - nome* e tipo* (select com a lista da RN02)
   - tags (chips simples; autocomplete fica no CARD-006)
   - endereço em campos separados: logradouro, número, complemento, bairro, cidade, UF (select com as 27 siglas)
-- `js/services/lugares.js`:
-  - constante `TIPOS` = Bar, Restaurante, Pizzaria, Hamburgueria, Café, Lanchonete, Balada, Outro
-  - `criarLugar(dados)`: valida obrigatórios, aplica `trim` no nome, bloqueia nome duplicado, define `status = 'quero_ir'` e `favorito = false`, monta `endereco` só com os campos preenchidos
+- `js/services/places.js`:
+  - constante `PLACE_TYPES` com o código gravado e o rótulo exibido: `bar` Bar, `restaurant` Restaurante, `pizzeria` Pizzaria, `burger` Hamburgueria, `cafe` Café, `snack_bar` Lanchonete, `nightclub` Balada, `other` Outro
+  - `createPlace(data)`: valida obrigatórios, aplica `trim` no nome, bloqueia nome duplicado, define `status = 'want_to_go'` e `favorite = false`, monta `address` só com os campos preenchidos
 - Ao salvar: toast de sucesso e navega para o detalhe do lugar.
 
 ## Critérios de aceite
-- [ ] Dado o formulário com nome e tipo, quando salvo, então o lugar é gravado com status `quero_ir` (RF01).
+- [ ] Dado o formulário com nome e tipo, quando salvo, então o lugar é gravado com status `want_to_go` (RF01).
 - [ ] Dado nome ou tipo vazio, quando salvo, então o campo mostra erro e nada é gravado (RN01).
 - [ ] Dado que existe "Bar do Zé", quando tento cadastrar " bar do zé ", então aparece "Nome já cadastrado" e nada é gravado (RN10).
-- [ ] Dado endereço só com cidade e UF, quando salvo, então `endereco` contém apenas esses dois campos.
+- [ ] Dado endereço só com cidade e UF, quando salvo, então `address` contém apenas esses dois campos.
 
 ## Notas técnicas
-- Checagem de nome único em `services/`: compara `nome.trim().toLowerCase()` com os nomes existentes (a base é pequena).
+- Checagem de nome único em `services/`: compara `name.trim().toLowerCase()` com os nomes existentes (a base é pequena).
 - Formato do registro conforme o modelo de dados do refinamento.
 
 ## Fora do escopo

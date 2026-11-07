@@ -19,21 +19,21 @@ Toda a persistência vive no IndexedDB. Esta camada é o único ponto do app que
 
 ## O que fazer
 - `js/db/index.js`: abrir o banco `diario-de-role` na versão 1 e, no `onupgradeneeded`, criar:
-  - `lugares` (keyPath `id`) com índices `nome`, `tipo`, `tags` (multiEntry), `favorito` e `status` (para montar as abas)
-  - `visitas` (keyPath `id`) com índices `lugarId` e `data`
-  - `meta` (keyPath `chave`)
+  - `places` (keyPath `id`) com índices `name`, `type`, `tags` (multiEntry) e `status` (para montar as abas). Sem índice em `favorite`: boolean não é chave válida no IndexedDB; o filtro roda em memória.
+  - `visits` (keyPath `id`) com índices `placeId` e `date`
+  - `meta` (keyPath `key`)
 - Gravar `schemaVersion = 1` em `meta`.
 - Repositórios:
-  - `js/db/lugares.js`: `listar()`, `obter(id)`, `salvar(lugar)`, `excluirComVisitas(id)` (transação em `lugares` + `visitas`)
-  - `js/db/visitas.js`: `listarTodas()`, `listarPorLugar(lugarId)`, `salvar(visita)`, `excluir(id)`
-  - `js/db/meta.js`: `get(chave)`, `set(chave, valor)`
-- Helper de transação para gravações em lote (usado pelo import, CARD-017).
-- Pedir `navigator.storage.persist()` na primeira abertura e guardar o resultado em `meta`.
-- Utilitários: `novoId()` com `crypto.randomUUID()` e carimbos `criadoEm` / `atualizadoEm` em ISO.
+  - `js/db/places.js`: `list()`, `listByStatus(status)`, `get(id)`, `save(place)`, `deleteWithVisits(id)` (transação em `places` + `visits`)
+  - `js/db/visits.js`: `listAll()`, `listByPlace(placeId)`, `get(id)`, `save(visit)`, `remove(id)`
+  - `js/db/meta.js`: `get(key)`, `set(key, value)`
+- Helpers `transaction(stores, mode, fn)` e `bulkWrite(recordsByStore, { clearFirst })` para gravações em lote (usado pelo import, CARD-017).
+- Pedir `navigator.storage.persist()` na primeira abertura e guardar o resultado em `meta` (`persistentStorage`).
+- Utilitários: `newId()` com `crypto.randomUUID()` e carimbos `createdAt` / `updatedAt` em ISO.
 
 ## Critérios de aceite
-- [ ] Dado o app aberto pela primeira vez, quando inspeciono Application > IndexedDB, então existem as stores `lugares`, `visitas` e `meta` com os índices previstos.
-- [ ] Dado um lugar com 3 visitas, quando chamo `excluirComVisitas`, então o lugar e as 3 visitas somem na mesma transação (RN06).
+- [ ] Dado o app aberto pela primeira vez, quando inspeciono Application > IndexedDB, então existem as stores `places`, `visits` e `meta` com os índices previstos.
+- [ ] Dado um lugar com 3 visitas, quando chamo `deleteWithVisits`, então o lugar e as 3 visitas somem na mesma transação (RN06).
 - [ ] Dado que uma gravação dentro de uma transação falha, então nenhuma alteração parcial fica salva.
 - [ ] `meta` contém `schemaVersion = 1`.
 

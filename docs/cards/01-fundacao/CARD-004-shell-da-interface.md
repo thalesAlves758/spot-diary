@@ -19,10 +19,10 @@ Navegação entre telas, estilo base mobile-first e componentes reutilizados por
 
 ## O que fazer
 - `js/router.js`: roteamento por hash com as rotas:
-  - `#/` início · `#/lugar/novo` · `#/lugar/:id` · `#/lugar/:id/editar`
-  - `#/lugar/:id/visita/nova` · `#/visita/:id/editar` · `#/backup`
+  - `#/` início · `#/place/new` · `#/place/:id` · `#/place/:id/edit`
+  - `#/place/:id/visit/new` · `#/visit/:id/edit` · `#/backup`
 - `css/app.css`: variáveis de cor, espaçamento e fonte; áreas de toque com no mínimo 44 px.
-- Componentes em `js/ui/componentes/`: cabeçalho, modal de confirmação (retorna `Promise<boolean>`), toast, estado vazio e painel inferior (bottom sheet, usado nos filtros).
+- Componentes em `js/ui/components/`: cabeçalho, modal de confirmação (retorna `Promise<boolean>`), toast, estado vazio e painel inferior (bottom sheet, usado nos filtros).
 - Telas placeholder para cada rota.
 
 ## Critérios de aceite

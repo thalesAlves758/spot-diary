@@ -19,9 +19,9 @@ Com tudo salvo só no celular, o export é o cinto de segurança dos dados.
 
 ## O que fazer
 - Tela T6 (`#/backup`) com a data do último export e o botão "Exportar".
-- `js/services/backup.js` → `gerarBackup()` retorna `{ app: 'diario-de-role', schemaVersion: 1, exportadoEm, lugares, visitas }`.
+- `js/services/backup.js` → `buildBackup()` retorna `{ app: 'diario-de-role', schemaVersion: 1, exportedAt, places, visits }`.
 - Download via `Blob` + `<a download>` com o nome `diario-de-role-AAAA-MM-DD.json`.
-- Gravar `meta.ultimoExportEm`.
+- Gravar `meta.lastExportAt`.
 
 ## Critérios de aceite
 - [ ] Dado 3 lugares e 5 visitas, quando exporto, então o JSON baixado contém os 3 lugares, as 5 visitas e `schemaVersion: 1` (RF12).

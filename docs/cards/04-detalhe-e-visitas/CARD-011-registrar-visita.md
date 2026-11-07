@@ -18,15 +18,15 @@ depende_de: [CARD-010]
 O coração do app: registrar uma ida ao lugar. A primeira visita move o lugar de "Quero ir" para "Já fui".
 
 ## O que fazer
-- Tela T5 em `#/lugar/:id/visita/nova`: data* (padrão hoje, máximo hoje), nota* (5 estrelas), "voltaria?"* (sim/não, sem padrão) e comentário.
-- `js/services/visitas.js` → `registrarVisita(lugarId, dados)`:
+- Tela T5 em `#/place/:id/visit/new`: data* (padrão hoje, máximo hoje), nota* (5 estrelas), "voltaria?"* (sim/não, sem padrão) e comentário.
+- `js/services/visits.js` → `recordVisit(placeId, data)`:
   - valida a RN05 (data não futura, nota inteira de 1 a 5, "voltaria" obrigatório)
-  - grava a visita e, se o lugar estiver em `quero_ir`, muda para `ja_fui` na mesma transação, atualizando `atualizadoEm`
+  - grava a visita e, se o lugar estiver em `want_to_go`, muda para `been_there` na mesma transação, atualizando `updatedAt`
 - Após salvar, volta ao detalhe com toast.
 
 ## Critérios de aceite
-- [ ] Dado um lugar `quero_ir` sem visitas, quando registro uma visita válida, então ela aparece no histórico e o lugar passa para "Já fui" (RF04, RN04).
-- [ ] Dado um lugar `ja_fui`, quando registro outra visita, então o status não muda e a média é recalculada.
+- [ ] Dado um lugar `want_to_go` sem visitas, quando registro uma visita válida, então ela aparece no histórico e o lugar passa para "Já fui" (RF04, RN04).
+- [ ] Dado um lugar `been_there`, quando registro outra visita, então o status não muda e a média é recalculada.
 - [ ] Dado data futura, nota ausente ou "voltaria" não escolhido, então aparece erro e nada é gravado (RN05).
 - [ ] Dado uma falha na gravação, então nem a visita nem a mudança de status ficam salvas.
 

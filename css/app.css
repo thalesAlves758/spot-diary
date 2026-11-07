@@ -1,4 +1,4 @@
-/* Estilo base — expandido no CARD-004. */
+/* Base styles — expanded in CARD-004. */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body { margin: 0; }

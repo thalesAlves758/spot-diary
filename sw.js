@@ -1,1 +1,1 @@
-// Service worker — implementado no CARD-003.
+// Service worker — implemented in CARD-003.

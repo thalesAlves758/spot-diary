@@ -18,12 +18,12 @@ depende_de: [CARD-011]
 Corrigir ou apagar uma visita. Apagar só remove o registro: o lugar nunca volta para "Quero ir".
 
 ## O que fazer
-- T5 em modo edição (`#/visita/:id/editar`), com as mesmas validações; atualiza `atualizadoEm`.
+- T5 em modo edição (`#/visit/:id/edit`), com as mesmas validações; atualiza `updatedAt`.
 - "Excluir visita" com confirmação; remove apenas a visita, sem tocar no status do lugar.
 
 ## Critérios de aceite
 - [ ] Dado uma visita com nota 3, quando mudo para 5 e salvo, então histórico e média refletem a mudança (RF05).
-- [ ] Dado um lugar `ja_fui` com 1 visita, quando excluo essa visita, então o lugar continua em "Já fui" (RN04).
+- [ ] Dado um lugar `been_there` com 1 visita, quando excluo essa visita, então o lugar continua em "Já fui" (RN04).
 - [ ] Dado que cancelo a confirmação, então nada é excluído.
 
 ## Justificativa da complexidade

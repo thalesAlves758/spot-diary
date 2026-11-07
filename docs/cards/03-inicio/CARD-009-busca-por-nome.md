@@ -22,7 +22,7 @@ Achar um lugar rápido digitando parte do nome.
 - Comparação sem diferenciar maiúsculas nem acentos (`normalize('NFD')`).
 - O termo continua aplicado ao trocar de aba.
 - Estado "sem resultado" com botão "limpar busca".
-- `js/services/filtros.js`: `buscarPorNome(lugares, termo)`, função pura que o CARD-015 estende.
+- `js/services/filters.js`: `searchByName(places, term)`, função pura que o CARD-015 estende.
 
 ## Critérios de aceite
 - [ ] Dado "Bar do Zé" e "Café Central", quando digito "ze", então só "Bar do Zé" aparece (RF09).

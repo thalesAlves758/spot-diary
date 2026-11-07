@@ -1,123 +1,123 @@
-// Único ponto do app que conhece o IndexedDB.
-// Abre o banco, cria stores e índices, roda migrações e oferece helpers de transação.
+// The only module in the app that knows about IndexedDB.
+// Opens the database, creates stores and indexes, runs migrations and provides transaction helpers.
 
-const DB_NOME = 'diario-de-role';
+const DB_NAME = 'diario-de-role';
 
-/** Versão do esquema: é a versão do banco no IndexedDB e a gravada em `meta` e no backup. */
+/** Schema version: the IndexedDB version, also stored in `meta` and in backups. */
 export const SCHEMA_VERSION = 1;
 
 /**
- * Migrações por versão. Cada entrada leva o banco da versão anterior até a sua.
- * Para mudar o esquema: aumente SCHEMA_VERSION e adicione a entrada nova aqui; nunca altere as antigas.
+ * Migrations by version. Each entry upgrades the database from the previous version to its own.
+ * To change the schema: bump SCHEMA_VERSION and add a new entry here; never edit existing ones.
  */
-const migracoes = {
+const migrations = {
   1(db) {
-    const lugares = db.createObjectStore('lugares', { keyPath: 'id' });
-    lugares.createIndex('nome', 'nome');
-    lugares.createIndex('tipo', 'tipo');
-    lugares.createIndex('tags', 'tags', { multiEntry: true });
-    lugares.createIndex('status', 'status');
-    // Sem índice em `favorito`: boolean não é chave válida no IndexedDB, então o índice ficaria
-    // sempre vazio. O filtro de favoritos roda em memória (services/).
+    const places = db.createObjectStore('places', { keyPath: 'id' });
+    places.createIndex('name', 'name');
+    places.createIndex('type', 'type');
+    places.createIndex('tags', 'tags', { multiEntry: true });
+    places.createIndex('status', 'status');
+    // No `favorite` index: booleans are not valid IndexedDB keys, so the index would always be
+    // empty. The favorites filter runs in memory (services/).
 
-    const visitas = db.createObjectStore('visitas', { keyPath: 'id' });
-    visitas.createIndex('lugarId', 'lugarId');
-    visitas.createIndex('data', 'data');
+    const visits = db.createObjectStore('visits', { keyPath: 'id' });
+    visits.createIndex('placeId', 'placeId');
+    visits.createIndex('date', 'date');
 
-    db.createObjectStore('meta', { keyPath: 'chave' });
+    db.createObjectStore('meta', { keyPath: 'key' });
   },
 };
 
-let conexao = null;
+let connection = null;
 
-/** Abre (uma vez só) a conexão com o banco. */
-export function abrirBanco() {
-  conexao ??= new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NOME, SCHEMA_VERSION);
+/** Opens the database connection (only once). */
+export function openDatabase() {
+  connection ??= new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, SCHEMA_VERSION);
 
-    req.onupgradeneeded = (evento) => {
+    req.onupgradeneeded = (event) => {
       const db = req.result;
-      for (let v = evento.oldVersion + 1; v <= SCHEMA_VERSION; v++) {
-        migracoes[v](db, req.transaction);
+      for (let v = event.oldVersion + 1; v <= SCHEMA_VERSION; v++) {
+        migrations[v](db, req.transaction);
       }
-      req.transaction.objectStore('meta').put({ chave: 'schemaVersion', valor: SCHEMA_VERSION });
+      req.transaction.objectStore('meta').put({ key: 'schemaVersion', value: SCHEMA_VERSION });
     };
 
     req.onsuccess = () => {
       const db = req.result;
-      // Outra aba abriu uma versão mais nova: fecha esta conexão para não travar a migração.
+      // Another tab opened a newer version: close this connection so it doesn't block the upgrade.
       db.onversionchange = () => {
         db.close();
-        conexao = null;
+        connection = null;
       };
       resolve(db);
     };
 
     req.onerror = () => {
-      conexao = null;
+      connection = null;
       reject(req.error);
     };
 
     req.onblocked = () => {
-      console.warn('Banco bloqueado por outra aba com versão antiga aberta; aguardando ela fechar.');
+      console.warn('Database blocked by another tab running an older version; waiting for it to close.');
     };
   });
-  return conexao;
+  return connection;
 }
 
-/** Transforma um IDBRequest em Promise. */
-export function pedido(request) {
+/** Wraps an IDBRequest in a Promise. */
+export function request(req) {
   return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
   });
 }
 
 /**
- * Roda `fn(tx)` numa transação e resolve com o retorno de `fn` só depois do commit.
- * Se `fn` lançar erro ou qualquer pedido falhar, a transação inteira é desfeita.
+ * Runs `fn(tx)` in a transaction and resolves with `fn`'s return value only after commit.
+ * If `fn` throws or any request fails, the whole transaction is rolled back.
  *
- * Dentro de `fn`, só use `await` em pedidos do próprio IndexedDB (via `pedido`):
- * esperar outra coisa (fetch, timers) deixa a transação fechar sozinha.
+ * Inside `fn`, only `await` IndexedDB requests (via `request`): awaiting anything else
+ * (fetch, timers) lets the transaction auto-commit.
  */
-export async function transacao(stores, modo, fn) {
-  const db = await abrirBanco();
+export async function transaction(stores, mode, fn) {
+  const db = await openDatabase();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(stores, modo);
-    let resultado;
-    let falhou = false;
+    const tx = db.transaction(stores, mode);
+    let result;
+    let failed = false;
 
-    tx.oncomplete = () => resolve(resultado);
+    tx.oncomplete = () => resolve(result);
     tx.onabort = () => {
-      if (!falhou) reject(tx.error ?? new DOMException('Transação abortada', 'AbortError'));
+      if (!failed) reject(tx.error ?? new DOMException('Transaction aborted', 'AbortError'));
     };
 
-    const abortarCom = (erro) => {
-      falhou = true;
-      try { tx.abort(); } catch { /* já finalizada */ }
-      reject(erro);
+    const abortWith = (error) => {
+      failed = true;
+      try { tx.abort(); } catch { /* already finished */ }
+      reject(error);
     };
 
     try {
-      Promise.resolve(fn(tx)).then((r) => { resultado = r; }, abortarCom);
-    } catch (erro) {
-      abortarCom(erro);
+      Promise.resolve(fn(tx)).then((r) => { result = r; }, abortWith);
+    } catch (error) {
+      abortWith(error);
     }
   });
 }
 
 /**
- * Grava vários registros em uma única transação, sem alterar carimbos (usado pelo import).
- * `registrosPorStore`: ex. `{ lugares: [...], visitas: [...] }`.
- * Com `limparAntes`, esvazia essas stores antes de gravar. Tudo ou nada.
+ * Writes many records in a single transaction without touching timestamps (used by import).
+ * `recordsByStore`: e.g. `{ places: [...], visits: [...] }`.
+ * With `clearFirst`, empties those stores before writing. All or nothing.
  */
-export function gravarEmLote(registrosPorStore, { limparAntes = false } = {}) {
-  const stores = Object.keys(registrosPorStore);
-  return transacao(stores, 'readwrite', (tx) => {
-    for (const nome of stores) {
-      const store = tx.objectStore(nome);
-      if (limparAntes) store.clear();
-      for (const registro of registrosPorStore[nome]) store.put(registro);
+export function bulkWrite(recordsByStore, { clearFirst = false } = {}) {
+  const stores = Object.keys(recordsByStore);
+  return transaction(stores, 'readwrite', (tx) => {
+    for (const name of stores) {
+      const store = tx.objectStore(name);
+      if (clearFirst) store.clear();
+      for (const record of recordsByStore[name]) store.put(record);
     }
   });
 }

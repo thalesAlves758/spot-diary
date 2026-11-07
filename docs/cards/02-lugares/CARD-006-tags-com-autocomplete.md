@@ -20,7 +20,7 @@ Tags livres organizam os lugares ("rooftop", "BH", "date"). O autocomplete evita
 ## O que fazer
 - Componente de entrada de tags em chips no T3: ao digitar, sugere tags já usadas filtrando por prefixo, sem diferenciar maiúsculas.
 - Enter ou vírgula cria a tag; "x" no chip remove.
-- `services/lugares.js`: `listarTags()` (união das tags de todos os lugares) e `normalizarTag()`, que reaproveita a grafia já existente.
+- `services/places.js`: `listTags()` (união das tags de todos os lugares) e `normalizeTag()`, que reaproveita a grafia já existente.
 
 ## Critérios de aceite
 - [ ] Dado que existe a tag "rooftop", quando digito "roo", então "rooftop" aparece como sugestão (RF11).
