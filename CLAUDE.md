@@ -35,7 +35,7 @@ js/ui/screens/, js/ui/components/
 ```
 
 Strict layering — this is what makes the future React migration (CARD-025) a UI-only rewrite:
-- `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`). No business rules here.
+- `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.
 

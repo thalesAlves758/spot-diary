@@ -433,6 +433,26 @@ select.field__input { appearance: auto; }
 .toggle__input:checked + .toggle-chip { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; }
 .toggle__input:focus-visible + .toggle-chip { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
+/* ===== Sort row + panel (T1/T7, CARD-027) ===== */
+.sort-row { display: flex; margin-bottom: var(--space-2); }
+.sort-row[hidden] { display: none; }
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  min-height: var(--touch);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.sort-btn .icon { width: 18px; height: 18px; }
+.sort-options { display: flex; flex-direction: column; gap: var(--space-2); }
+.sort-option { width: 100%; border-radius: 8px; }
+
 /* ===== Backup reminder (CARD-018) ===== */
 .reminder {
   display: flex;

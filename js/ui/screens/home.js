@@ -8,8 +8,10 @@ import { createEmptyState } from '../components/empty-state.js';
 import { createBackupReminder, isBackupReminderDismissed } from '../components/backup-reminder.js';
 import { createFavoriteButton } from '../components/favorite-button.js';
 import { openBottomSheet } from '../components/bottom-sheet.js';
+import { showToast } from '../components/toast.js';
 import { formatAverage, formatDate } from '../format.js';
-import { loadHomeLists } from '../../services/lists.js';
+import { loadHomeLists, getHomeSort, setHomeSort } from '../../services/lists.js';
+import { SORT_OPTIONS, sortItems, sortLabel } from '../../services/sorting.js';
 import {
   searchByName, normalizeTerm, applyFilters, countActiveFilters, emptyFilters,
   filtersToQuery, filtersFromQuery, MIN_RATINGS,
@@ -41,7 +43,8 @@ const MAX_TAGS_ON_CARD = 3;
 const newPlacePath = (status) => (status === STATUS.BEEN_THERE ? '/place/new?beenThere=1' : '/place/new');
 
 export async function render(root, { query }) {
-  const [lists, lastExportAt] = await Promise.all([loadHomeLists(), getLastExportAt()]);
+  const sort = await getHomeSort();
+  const [lists, lastExportAt] = await Promise.all([loadHomeLists(sort), getLastExportAt()]);
   const placeCount = lists[STATUS.WANT_TO_GO].length + lists[STATUS.BEEN_THERE].length;
   const reminder = !isBackupReminderDismissed() && shouldRemindBackup({ lastExportAt, placeCount })
     ? createBackupReminder({ neverExported: !lastExportAt, onExport: () => navigate('/backup') })
@@ -55,14 +58,49 @@ export async function render(root, { query }) {
   const tabButtons = new Map();
   const tabCounts = new Map();
   const panel = h('section', { class: 'tab-panel', id: 'home-panel', role: 'tabpanel' });
-  const visible = (status) => applyFilters(searchByName(lists[status], term), filters);
+  const filtered = (status) => applyFilters(searchByName(lists[status], term), filters);
+  // `lists` are already in the saved order and search/filters keep the order, so the sort
+  // (applied after them, RN16) only reruns when the user picks another one.
+  const visible = filtered;
+
+  const sortLabelText = h('span', {});
+  const sortButton = h('button', {
+    type: 'button',
+    class: 'sort-btn',
+    onclick: () => openSortSheet({
+      status: current,
+      selected: sort[current],
+      onSelect: async (key) => {
+        const status = current;
+        const previous = sort[status];
+        sort[status] = key;
+        lists[status] = sortItems(lists[status], key);
+        update();
+        try {
+          await setHomeSort(status, key);
+        } catch {
+          // Keep screen and storage consistent: go back to the order that is actually saved.
+          sort[status] = previous;
+          lists[status] = sortItems(lists[status], previous);
+          update();
+          showToast('Não foi possível salvar a ordem.');
+        }
+      },
+    }),
+  }, sortLabelText, icon('chevron-down'));
+  const sortRow = h('div', { class: 'sort-row' }, sortButton);
 
   // Redraws counts, filter badge and list for the current tab, search and filters, and keeps
   // them all in the URL so going back from a place returns to the same view.
   const update = () => {
-    for (const { status } of TABS) tabCounts.get(status).textContent = String(visible(status).length);
+    for (const { status } of TABS) tabCounts.get(status).textContent = String(filtered(status).length);
     paintFilterButton();
-    panel.replaceChildren(renderList(lists[current], visible(current), current, {
+    const items = visible(current);
+    const label = sortLabel(current, sort[current]);
+    sortLabelText.textContent = `Ordenar: ${label}`;
+    sortButton.setAttribute('aria-label', `Ordenar por: ${label}`);
+    sortRow.hidden = items.length === 0;
+    panel.replaceChildren(renderList(lists[current], items, current, {
       term, filtersActive: countActiveFilters(filters, current) > 0, clearSearch, clearFilters, clearAll,
     }));
     setQuery({
@@ -190,7 +228,7 @@ export async function render(root, { query }) {
       actions: [iconButton({ name: 'backup', label: 'Backup', onClick: () => navigate('/backup') })],
     }),
     h('div', { class: 'home-bar' }, tablist, searchBar),
-    h('main', { class: 'page' }, reminder, panel),
+    h('main', { class: 'page' }, reminder, sortRow, panel),
     h('button', { type: 'button', class: 'fab', onclick: () => navigate(newPlacePath(current)) },
       icon('plus'), h('span', {}, 'Novo')),
   );
@@ -277,6 +315,25 @@ function renderCard({ place, summary }, status) {
       onChange: (favorite) => { place.favorite = favorite; },
     }),
   );
+}
+
+// ---------------------------------------------------------------- Sort panel (T7, CARD-027)
+
+/** Single-choice sheet: tapping an option applies it and closes; closing any other way changes nothing. */
+function openSortSheet({ status, selected, onSelect }) {
+  let sheet;
+  const options = SORT_OPTIONS[status].map(({ code, label }, i) => {
+    const input = h('input', {
+      type: 'radio', name: 'sort', class: 'toggle__input', id: `sort-${i}`, value: code, checked: code === selected,
+    });
+    input.addEventListener('change', () => {
+      sheet.close();
+      onSelect(code);
+    });
+    return [input, h('label', { class: 'toggle-chip sort-option', for: input.id }, label)];
+  });
+  const content = h('div', { class: 'sort-options', role: 'radiogroup', 'aria-label': 'Ordenar por' }, options);
+  sheet = openBottomSheet({ title: 'Ordenar por', content });
 }
 
 // ---------------------------------------------------------------- Filter panel (T2, CARD-015)
