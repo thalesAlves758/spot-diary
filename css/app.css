@@ -416,6 +416,8 @@ select.field__input { appearance: auto; }
   background: var(--color-surface);
 }
 .panel + .panel { margin-top: var(--space-4); }
+.panel.danger-panel { margin-top: var(--space-6); border-color: #f5c2c2; }
+.danger-panel .panel__title { color: var(--color-danger); }
 .panel__title { font-size: var(--font-size-lg); }
 .panel__text { color: var(--color-muted); }
 .backup__last { font-weight: 600; }

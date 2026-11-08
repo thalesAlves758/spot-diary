@@ -129,6 +129,18 @@ export async function transaction(stores, mode, fn) {
 }
 
 /**
+ * Empties `places` and `visits` and removes the given `meta` keys, in one transaction (CARD-026).
+ * Which meta keys to drop is decided by the caller (services/), not here.
+ */
+export function clearData({ metaKeys = [] } = {}) {
+  return transaction(['places', 'visits', 'meta'], 'readwrite', (tx) => {
+    tx.objectStore('places').clear();
+    tx.objectStore('visits').clear();
+    for (const key of metaKeys) tx.objectStore('meta').delete(key);
+  });
+}
+
+/**
  * Writes many records in a single transaction without touching timestamps (used by import).
  * `recordsByStore`: e.g. `{ places: [...], visits: [...] }`.
  * With `clearFirst`, empties those stores before writing. All or nothing.

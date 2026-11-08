@@ -13,6 +13,13 @@ export function formatDate(isoDate) {
   return `${day}/${month}/${year}`;
 }
 
+/** ISO date-time → "07/11/2026" (calendar day in the device's time zone). */
+export function formatLocalDate(iso) {
+  const date = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
 /** ISO date-time → "07/11/2026 às 15:30", in the device's time zone. */
 export function formatDateTime(iso) {
   const date = new Date(iso);

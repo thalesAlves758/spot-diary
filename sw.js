@@ -5,7 +5,7 @@
 // Every new app file must be added to ASSETS, otherwise it breaks offline mode.
 
 const CACHE_PREFIX = 'diario-';
-const CACHE_VERSION = 'diario-v1';
+const CACHE_VERSION = 'diario-v2';
 
 const ASSETS = [
   './',
@@ -23,6 +23,7 @@ const ASSETS = [
   'js/db/visits.js',
   'js/services/backup-import.js',
   'js/services/backup.js',
+  'js/services/data-reset.js',
   'js/services/errors.js',
   'js/services/filters.js',
   'js/services/lists.js',

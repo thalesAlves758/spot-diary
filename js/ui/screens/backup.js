@@ -1,33 +1,44 @@
-// T6 — Settings / Backup. Export: CARD-016. Import: CARD-017.
+// T6 — Settings / Backup. Export: CARD-016. Import: CARD-017. Erase all data: CARD-026.
 import { h } from '../dom.js';
+import { resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { confirmDialog } from '../components/confirm-dialog.js';
-import { formatDateTime, plural } from '../format.js';
+import { formatDateTime, formatLocalDate, plural } from '../format.js';
 import {
   buildBackup, serializeBackup, backupFileName, markExported, getLastExportAt, countData,
 } from '../../services/backup.js';
 import { parseBackup, importBackup, IMPORT_MODE } from '../../services/backup-import.js';
+import { eraseAllData } from '../../services/data-reset.js';
 import { ImportError } from '../../services/errors.js';
 
 const places = (n) => plural(n, 'lugar', 'lugares');
 const visits = (n) => plural(n, 'visita', 'visitas');
 
+// Sections that show counts register here; called after an import changes the data.
+let countListeners = [];
+async function refreshCounts() {
+  const counts = await countData();
+  for (const listener of countListeners) listener(counts);
+}
+
 export async function render(root) {
   const [lastExportAt, counts] = await Promise.all([getLastExportAt(), countData()]);
+  countListeners = [];
 
   root.append(
     createHeader({ title: 'Backup', back: true }),
     h('main', { class: 'page' },
       buildExportPanel(lastExportAt, counts),
       buildImportPanel(),
+      buildErasePanel(counts),
     ),
   );
 }
 
 // ---------------------------------------------------------------- Export (CARD-016)
 
-let refreshExportCounts = () => {};
+const refreshExportCounts = () => refreshCounts();
 
 function buildExportPanel(lastExportAt, counts) {
   const lastExportText = h('p', { class: 'backup__last', 'aria-live': 'polite' });
@@ -41,7 +52,7 @@ function buildExportPanel(lastExportAt, counts) {
   const countsText = h('p', { class: 'panel__text', id: 'export-counts' });
   const showCounts = (c) => { countsText.textContent = `Serão exportados ${places(c.places)} e ${visits(c.visits)}.`; };
   showCounts(counts);
-  refreshExportCounts = async () => showCounts(await countData());
+  countListeners.push(showCounts);
 
   const exportButton = h('button', { type: 'button', class: 'btn btn-primary btn-block' }, 'Exportar');
   exportButton.addEventListener('click', async () => {
@@ -82,6 +93,61 @@ function downloadText(text, fileName, type) {
   link.remove();
   // Revoking right away can cancel the download in some browsers.
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+// ---------------------------------------------------------------- Erase all data (CARD-026)
+
+function buildErasePanel(initialCounts) {
+  let counts = initialCounts;
+  const button = h('button', { type: 'button', class: 'btn btn-danger btn-block' });
+  const showState = (c) => {
+    counts = c;
+    const empty = c.places === 0 && c.visits === 0;
+    button.disabled = empty;
+    button.textContent = empty ? 'Não há dados para apagar' : 'Apagar todos os dados';
+  };
+  showState(initialCounts);
+  countListeners.push(showState);
+
+  button.addEventListener('click', async () => {
+    const lastExportAt = await getLastExportAt();
+    const step1 = await confirmDialog({
+      title: 'Apagar todos os dados?',
+      message: `Serão apagados ${places(counts.places)} e ${visits(counts.visits)}. `
+        + (lastExportAt
+          ? `Seu último backup foi em ${formatLocalDate(lastExportAt)}.`
+          : 'Você nunca fez backup — exporte antes se quiser guardar esses dados.'),
+      confirmLabel: 'Continuar',
+    });
+    if (!step1) return;
+    const step2 = await confirmDialog({
+      title: 'Tem certeza?',
+      message: 'Essa ação não pode ser desfeita.',
+      confirmLabel: 'Apagar tudo',
+      danger: true,
+    });
+    if (!step2) return;
+
+    button.disabled = true;
+    try {
+      await eraseAllData();
+      showToast('Todos os dados foram apagados');
+      // Clears the history too, so back can't reach screens of places that no longer exist.
+      await resetTo('/');
+    } catch (error) {
+      console.error(error);
+      showToast('Não foi possível apagar. Tente de novo.');
+      button.disabled = false;
+    }
+  });
+
+  return h('section', { class: 'panel danger-panel', 'aria-labelledby': 'erase-title' },
+    h('h2', { class: 'panel__title', id: 'erase-title' }, 'Apagar dados'),
+    h('p', { class: 'panel__text' },
+      'Apaga todos os lugares e visitas deste aparelho. Não dá para desfazer: para recuperar, '
+      + 'só importando um backup.'),
+    button,
+  );
 }
 
 // ---------------------------------------------------------------- Import (CARD-017)
