@@ -12,22 +12,32 @@ import {
 } from '../../services/places.js';
 import { ValidationError, NotFoundError } from '../../services/errors.js';
 
-export async function render(root, { params }) {
+export async function render(root, { params, query }) {
   if (params.id) return renderEdit(root, params.id);
 
+  // "Novo" from the "Já fui" tab (CARD-013): after saving the place, go straight to its visit.
+  // The place is still "Quero ir" until the visit is saved (leaving the visit form keeps it there).
+  const beenThere = query.get('beenThere') === '1';
   const existingTags = await listTags();
 
   root.append(
     createHeader({ title: 'Novo lugar', back: true }),
     h('main', { class: 'page' },
+      beenThere && h('p', { class: 'form-hint' }, 'Depois de salvar o lugar, você registra a visita.'),
       buildPlaceForm({
         existingTags,
-        submitLabel: 'Salvar',
+        submitLabel: beenThere ? 'Salvar e registrar visita' : 'Salvar',
         onSubmit: async (data) => {
           const place = await createPlace(data);
-          showToast('Lugar salvo');
-          // Replace the form entry: back from the detail goes to the list, not to an empty form.
-          replace(`/place/${place.id}`);
+          const placePath = `/place/${encodeURIComponent(place.id)}`;
+          // Replace the form entry: back never returns to an empty form.
+          if (beenThere) {
+            showToast('Lugar salvo. Agora registre a visita.');
+            replace(`${placePath}/visit/new`);
+          } else {
+            showToast('Lugar salvo');
+            replace(placePath);
+          }
         },
       }),
     ),

@@ -33,6 +33,9 @@ const EMPTY = {
 
 const MAX_TAGS_ON_CARD = 3;
 
+/** "Novo" in "Já fui" registers the visit right after the place (CARD-013). */
+const newPlacePath = (status) => (status === STATUS.BEEN_THERE ? '/place/new?beenThere=1' : '/place/new');
+
 export async function render(root, { query }) {
   const [lists, lastExportAt] = await Promise.all([loadHomeLists(), getLastExportAt()]);
   const placeCount = lists[STATUS.WANT_TO_GO].length + lists[STATUS.BEEN_THERE].length;
@@ -144,7 +147,7 @@ export async function render(root, { query }) {
     }),
     h('div', { class: 'home-bar' }, tablist, searchBar),
     h('main', { class: 'page' }, reminder, panel),
-    h('button', { type: 'button', class: 'fab', onclick: () => navigate('/place/new') },
+    h('button', { type: 'button', class: 'fab', onclick: () => navigate(newPlacePath(current)) },
       icon('plus'), h('span', {}, 'Novo')),
   );
   select(current);
@@ -156,7 +159,7 @@ function renderList(allItems, status, term, clearSearch) {
   if (!allItems.length) {
     return createEmptyState({
       ...EMPTY[status],
-      action: { label: 'Cadastrar lugar', onClick: () => navigate('/place/new') },
+      action: { label: 'Cadastrar lugar', onClick: () => navigate(newPlacePath(status)) },
     });
   }
   const items = searchByName(allItems, term);
