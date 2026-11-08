@@ -365,21 +365,17 @@ select.field__input { appearance: auto; }
   line-height: 24px;
 }
 
-/* ===== Search ===== */
+/* ===== Search + filter button ===== */
 .search {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   max-width: var(--page-max);
   margin: 0 auto;
   padding: var(--space-2) var(--space-4) var(--space-3);
-  position: relative;
 }
-.search__icon {
-  position: absolute;
-  left: calc(var(--space-4) + var(--space-3));
-  color: var(--color-muted);
-  pointer-events: none;
-}
+.search__field { position: relative; display: flex; flex: 1; align-items: center; min-width: 0; }
+.search__icon { position: absolute; left: var(--space-3); color: var(--color-muted); pointer-events: none; }
 .search__icon .icon { width: 20px; height: 20px; }
 .search__input {
   flex: 1;
@@ -393,12 +389,49 @@ select.field__input { appearance: auto; }
 }
 .search__input::-webkit-search-cancel-button { display: none; } /* own clear button instead */
 .search__input:focus { outline: 2px solid var(--color-on-primary); outline-offset: 1px; }
-.search__clear {
-  position: absolute;
-  right: var(--space-4);
-  color: var(--color-muted);
-}
+.search__clear { position: absolute; right: 0; color: var(--color-muted); }
 .search__clear[hidden] { display: none; }
+
+.filter-btn { position: relative; color: var(--color-on-primary); }
+.filter-btn--active { background: rgb(255 255 255 / 0.2); }
+.filter-btn__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--color-on-primary);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.filter-btn__badge[hidden] { display: none; }
+
+/* ===== Filter panel (T2) ===== */
+.filters { display: flex; flex-direction: column; gap: var(--space-4); }
+.filter-section { margin: 0; padding: 0; border: 0; min-width: 0; }
+.filter-section__title { margin-bottom: var(--space-2); padding: 0; font-weight: 700; }
+.toggle-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.toggle__input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: var(--touch);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: var(--color-surface);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toggle__input:checked + .toggle-chip { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; }
+.toggle__input:focus-visible + .toggle-chip { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
 /* ===== Backup reminder (CARD-018) ===== */
 .reminder {

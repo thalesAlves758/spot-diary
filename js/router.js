@@ -76,11 +76,17 @@ export async function resetTo(path) {
  * and without re-rendering. `params`: object or URLSearchParams; empty values are dropped.
  */
 export function setQuery(params) {
-  const { path } = parseHash();
   const entries = Object.entries(params instanceof URLSearchParams ? Object.fromEntries(params) : params)
     .filter(([, value]) => value !== null && value !== undefined && value !== '');
   const search = new URLSearchParams(entries).toString();
-  history.replaceState(history.state, '', '#' + path + (search ? `?${search}` : ''));
+  const apply = () => {
+    const { path } = parseHash();
+    history.replaceState(history.state, '', '#' + path + (search ? `?${search}` : ''));
+  };
+  // Right after an overlay closes, its history entry is still current until our back() lands:
+  // writing now would change that entry and be lost with it.
+  if (pendingBacks > 0) idle.then(apply);
+  else apply();
 }
 
 /**
