@@ -5,19 +5,22 @@ import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { createTagInput } from '../components/tag-input.js';
 import { renderPlaceholder } from './placeholder.js';
-import { PLACE_TYPES, BRAZIL_STATES, createPlace } from '../../services/places.js';
+import { PLACE_TYPES, BRAZIL_STATES, createPlace, listTags } from '../../services/places.js';
 import { ValidationError } from '../../services/errors.js';
 
-export function render(root, { params }) {
+export async function render(root, { params }) {
   if (params.id) {
     renderPlaceholder(root, { title: 'Editar lugar', backFallback: `/place/${params.id}`, card: 'CARD-007' });
     return;
   }
 
+  const existingTags = await listTags();
+
   root.append(
     createHeader({ title: 'Novo lugar', back: true }),
     h('main', { class: 'page' },
       buildPlaceForm({
+        existingTags,
         submitLabel: 'Salvar',
         onSubmit: async (data) => {
           const place = await createPlace(data);
@@ -34,8 +37,9 @@ export function render(root, { params }) {
 /**
  * Place form shared by create and edit.
  * `onSubmit(data)` may throw `ValidationError`; its field messages are shown next to the fields.
+ * `existingTags`: tags already in use, for the tag suggestions.
  */
-export function buildPlaceForm({ initial = {}, submitLabel, onSubmit }) {
+export function buildPlaceForm({ initial = {}, existingTags = [], submitLabel, onSubmit }) {
   const address = initial.address ?? {};
   const errorEls = {};
 
@@ -62,7 +66,7 @@ export function buildPlaceForm({ initial = {}, submitLabel, onSubmit }) {
     h('option', { value: '' }, 'Selecione'),
     PLACE_TYPES.map((t) => h('option', { value: t.value, selected: t.value === initial.type }, t.label)),
   );
-  const tagInput = createTagInput({ id: 'place-tags', tags: initial.tags });
+  const tagInput = createTagInput({ id: 'place-tags', tags: initial.tags, existingTags });
   const stateSelect = h('select', { id: 'place-state', name: 'state', class: 'field__input' },
     h('option', { value: '' }, '—'),
     BRAZIL_STATES.map((uf) => h('option', { value: uf, selected: uf === address.state }, uf)),

@@ -50,6 +50,45 @@ export function cleanTags(tags) {
   return result;
 }
 
+/** Lowercase without accents, for loose matching ("Música" → "musica"). */
+export function foldText(text) {
+  return String(text ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+}
+
+/** All distinct tags used by `places` (case-insensitive), alphabetically. Pure. */
+export function uniqueTags(places) {
+  return cleanTags(places.flatMap((p) => p.tags ?? []))
+    .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+}
+
+/** Distinct tags of every saved place (RF11). */
+export async function listTags() {
+  return uniqueTags(await placesDb.list());
+}
+
+/**
+ * Reuses the spelling of a tag that already exists (RN03): with "BH" saved, "bh" becomes "BH".
+ * Returns the trimmed tag unchanged when it's new.
+ */
+export function normalizeTag(tag, existingTags = []) {
+  const trimmed = String(tag ?? '').trim();
+  const key = trimmed.toLowerCase();
+  return existingTags.find((t) => t.toLowerCase() === key) ?? trimmed;
+}
+
+/**
+ * Suggestions while typing (RF11): existing tags starting with `query`, ignoring case and accents,
+ * minus the ones already on the place.
+ */
+export function suggestTags(query, existingTags = [], selected = [], limit = 6) {
+  const q = foldText(query).trim();
+  if (!q) return [];
+  const taken = new Set(selected.map((t) => t.toLowerCase()));
+  return existingTags
+    .filter((t) => !taken.has(t.toLowerCase()) && foldText(t).startsWith(q))
+    .slice(0, limit);
+}
+
 /** Keeps only the filled address fields, trimmed. */
 export function cleanAddress(address) {
   const result = {};
@@ -82,7 +121,10 @@ export function validatePlace(data, existing = [], { ignoreId = null } = {}) {
 
   if (address.state && !BRAZIL_STATES.includes(address.state)) errors.state = 'UF inválida';
 
-  return { errors, value: { name, type, tags: cleanTags(data?.tags), address } };
+  const existingTags = uniqueTags(existing);
+  const tags = cleanTags((data?.tags ?? []).map((t) => normalizeTag(t, existingTags)));
+
+  return { errors, value: { name, type, tags, address } };
 }
 
 /**
