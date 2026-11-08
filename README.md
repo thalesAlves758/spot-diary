@@ -4,7 +4,7 @@ PWA pessoal para guardar os bares e restaurantes que você quer conhecer e o his
 
 O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista **Quero ir**, que vira **Já fui** quando a primeira visita é registrada. Cada visita guarda a data, a nota, se você voltaria e um comentário.
 
-**Status:** MVP completo (19 cards). Fotos, mapa, login e migração para React ficaram para depois. Veja o [Roadmap](#roadmap).
+**Status:** MVP completo (20 cards, incluindo a ordenação das listas, adicionada depois da primeira entrega). Fotos, mapa, login e migração para React ficaram para depois. Veja o [Roadmap](#roadmap).
 
 ---
 
@@ -42,7 +42,8 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 - Abas **Quero ir** e **Já fui**, com contador.
 - Busca por nome enquanto você digita, sem diferenciar maiúsculas nem acentos ("ze" encontra "Bar do Zé").
 - Filtros por tipo, tags e "só favoritos". Na aba "Já fui" há também "voltaria = sim" e nota mínima.
-- A aba, a busca e os filtros ficam no endereço da página, então continuam aplicados quando você abre um lugar e volta.
+- Ordenação por aba, na linha "Ordenar: … ▾" acima da lista. Em "Quero ir": adicionados mais recentes, adicionados mais antigos e A–Z. Em "Já fui": última visita mais recente, última visita mais antiga, A–Z, maior nota e mais visitados.
+- A aba, a busca e os filtros ficam no endereço da página, então continuam aplicados quando você abre um lugar e volta. A ordem de cada aba fica salva no aparelho e continua valendo quando o app é reaberto.
 
 **Backup**
 - **Exportar** baixa um arquivo `.json` com todos os lugares e visitas.
@@ -61,7 +62,7 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 
 | Tela | Rota | O que faz |
 | --- | --- | --- |
-| **Início** | `#/` | Abas "Quero ir" e "Já fui", busca, filtros, lembrete de backup e botão "Novo" |
+| **Início** | `#/` | Abas "Quero ir" e "Já fui", busca, filtros, ordenação, lembrete de backup e botão "Novo" |
 | **Novo lugar** | `#/place/new` | Cadastro de lugar. Com `?beenThere=1`, vindo do "Novo" da aba "Já fui", segue direto para o registro da visita |
 | **Detalhe do lugar** | `#/place/:id` | Dados do lugar, resumo das visitas, histórico e ações |
 | **Editar lugar** | `#/place/:id/edit` | Mesmo formulário do cadastro, com "Excluir lugar" |
@@ -69,7 +70,7 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 | **Editar visita** | `#/visit/:id/edit` | Mesmo formulário do registro, com "Excluir visita" |
 | **Backup** | `#/backup` | Exportar, importar e apagar todos os dados |
 
-Os filtros abrem num **painel inferior** sobre a tela inicial. Ele não tem rota própria.
+Os filtros e a ordenação abrem em **painéis inferiores** sobre a tela inicial. Eles não têm rota própria.
 
 **Fluxos principais**
 
@@ -97,7 +98,7 @@ flowchart LR
 
 ## Regras de negócio
 
-As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN12). As principais:
+As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN16). As principais:
 
 - **Nome e tipo são obrigatórios.** Não pode haver dois lugares com o mesmo nome, sem diferenciar maiúsculas e espaços nas pontas.
 - **Tags** não diferenciam maiúsculas ("BH" e "bh" são a mesma tag).
@@ -107,6 +108,10 @@ As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN12). 
 - **Filtros:** qualquer opção dentro do mesmo critério vale (Bar *ou* Pizzaria), e entre critérios diferentes todos precisam valer.
   - "Voltaria" e "nota mínima" só se aplicam a lugares em "Já fui".
   - Um lugar em "Já fui" sem visitas fica de fora desses dois filtros.
+- **Ordenação:** é aplicada depois da busca e dos filtros e não conta como filtro ("Limpar filtros" não muda a ordem).
+  - Em "Já fui", lugares sem visitas ficam sempre no fim nas ordens por visita, nota e quantidade.
+  - Empates são resolvidos pela última visita mais recente e depois pelo nome. A ordem A–Z ignora maiúsculas e acentos.
+  - A escolha de cada aba fica salva no aparelho, mas não entra no backup.
 - **Importar "mesclar":** lugares e visitas são casados pelo ID, e em conflito fica a versão editada mais recentemente.
   - Um lugar do arquivo com o nome de outro já existente, mas com outro ID, não é importado. As visitas dele também não, e ele aparece listado no resultado.
 - **Lembrete de backup:** aparece com mais de 30 dias sem exportar, ou se nunca houve backup e já existe pelo menos um lugar.
@@ -152,7 +157,8 @@ js/
     places.js              lugares: validação, tags, CRUD, favorito, detalhe
     visits.js              visitas: validação (RN05), registro (muda o status), edição
     summary.js             média, última visita e "voltaria"
-    lists.js               listas "Quero ir" / "Já fui" e ordenação
+    lists.js               listas "Quero ir" / "Já fui" e ordem salva de cada aba
+    sorting.js             opções de ordenação e comparadores
     filters.js             busca por nome e filtros
     backup.js              export e lembrete de backup
     backup-import.js       validação e import (mesclar ou substituir)
@@ -173,7 +179,7 @@ Duas coleções, **places** e **visits**, ligadas por `placeId` (um lugar tem v�
 | --- | --- | --- | --- |
 | `places` | `id` (UUID) | `name`, `type`, `tags` (multiEntry), `status` | `name`, `type`, `status`, `tags`, `address`, `favorite`, `createdAt`, `updatedAt` |
 | `visits` | `id` (UUID) | `placeId`, `date` | `placeId`, `date` (`YYYY-MM-DD`), `rating`, `wouldReturn`, `comment`, `createdAt`, `updatedAt` |
-| `meta` | `key` | — | `schemaVersion`, `lastExportAt`, `persistentStorage` |
+| `meta` | `key` | — | `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort` (ordem de cada aba) |
 
 - O código e os dados gravados são em inglês: `status` é `want_to_go` ou `been_there`, e os tipos são `bar`, `restaurant`, `pizzeria`… Só os textos da tela são em português. A tabela que liga cada código ao seu rótulo está no [refinamento](docs/refinamento.md#modelo-de-dados).
 - A média e a última visita são **calculadas** a partir das visitas, não gravadas.
@@ -260,7 +266,7 @@ Todos os caminhos do app são relativos, então ele funciona dentro de uma subpa
 
 Sempre que **qualquer arquivo do app** mudar:
 
-1. Aumente a versão do cache em [sw.js](sw.js) (`diario-v3` → `diario-v4`), no mesmo commit da mudança.
+1. Aumente a versão do cache em [sw.js](sw.js) (ex.: `diario-v4` → `diario-v5`), no mesmo commit da mudança.
 2. Se criou um arquivo novo, inclua ele na lista `ASSETS` do mesmo arquivo.
 
 Sem isso, o navegador nem percebe que o `sw.js` mudou e continua servindo a versão antiga do cache, inclusive no app instalado.
@@ -302,6 +308,6 @@ Itens planejados para depois do MVP (cards em [docs/cards/07-evolucao](docs/card
 
 ## Documentação do projeto
 
-- [docs/refinamento.md](docs/refinamento.md): visão, escopo, requisitos (RF01–RF18), regras de negócio (RN01–RN12), telas, modelo de dados e riscos. É a fonte de verdade do produto.
-- [docs/cards/_index.md](docs/cards/_index.md): os 26 cards, com dependências, ondas de execução, status e a ligação de cada requisito aos cards.
+- [docs/refinamento.md](docs/refinamento.md): visão, escopo, requisitos (RF01–RF19), regras de negócio (RN01–RN16), telas, modelo de dados e riscos. É a fonte de verdade do produto.
+- [docs/cards/_index.md](docs/cards/_index.md): os 27 cards, com dependências, ondas de execução, status e a ligação de cada requisito aos cards.
 - [CLAUDE.md](CLAUDE.md): convenções técnicas para quem mexe no código (camadas, navegação, service worker).
