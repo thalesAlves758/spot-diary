@@ -1,12 +1,12 @@
 # Cards — Diário de Rolê
 
-**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)). Atualizado em 08/11/2026 com o RF18 (apagar todos os dados → CARD-026).
+**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)). Atualizado em 08/11/2026 com o RF18 (apagar todos os dados → CARD-026) e com o RF19 / RN13–RN16 (ordenação das listas → CARD-027).
 
 ## Resumo
 
-- **Total:** 26 cards — 19 do MVP e 7 para depois.
-- **Complexidade (todos):** P 12 · M 14 · G 0.
-- **Complexidade (MVP):** P 8 · M 11.
+- **Total:** 27 cards — 20 do MVP e 7 para depois.
+- **Complexidade (todos):** P 12 · M 15 · G 0.
+- **Complexidade (MVP):** P 8 · M 12.
 - **Incerteza alta:** CARD-022, CARD-024 (spikes de evolução). **Incerteza média:** CARD-003, CARD-017, CARD-019, CARD-020, CARD-021, CARD-023, CARD-025.
 
 ## Quadro
@@ -39,6 +39,7 @@
 | [CARD-024](07-evolucao/CARD-024-spike-login-e-sync.md) | Spike: login e sincronização | evolucao | spike | P | depois | alta | todo | 017 |
 | [CARD-025](07-evolucao/CARD-025-spike-migracao-react.md) | Spike: plano de migração da interface para React | evolucao | spike | P | depois | media | todo | 015, 018 |
 | [CARD-026](06-backup/CARD-026-apagar-todos-os-dados.md) | Apagar todos os dados | backup | feature | P | mvp | baixa | done | 016 |
+| [CARD-027](05-favoritos-e-filtros/CARD-027-ordenacao-das-listas.md) | Ordenação das listas | descoberta | feature | M | mvp | baixa | todo | 008, 015 |
 
 ## Ordem sugerida de execução
 
@@ -52,6 +53,7 @@ Cards da mesma onda podem rodar em paralelo.
 4. CARD-006 (Tags com autocomplete), CARD-007 (Editar e excluir lugar), CARD-009 (Busca por nome), CARD-010 (Detalhe do lugar), CARD-017 (Importar backup (substituir ou mesclar)), CARD-018 (Lembrete de backup), CARD-026 (Apagar todos os dados)
 5. CARD-011 (Registrar visita), CARD-014 (Favoritar lugar)
 6. CARD-012 (Editar e excluir visita), CARD-013 (Botão "Novo" na aba "Já fui"), CARD-015 (Filtros (tipo, tags, favoritos, voltaria, nota mínima))
+7. CARD-027 (Ordenação das listas), incluído depois da entrega do MVP
 
 **Depois** (após o MVP rodando)
 
@@ -91,6 +93,7 @@ flowchart LR
     C024["024 Spike: login e sincronização"]
     C025["025 Spike: plano de migração da interface para React"]
     C026["026 Apagar todos os dados"]
+    C027["027 Ordenação das listas"]
     C001 --> C002
     C001 --> C003
     C001 --> C004
@@ -127,6 +130,8 @@ flowchart LR
     C015 --> C025
     C018 --> C025
     C016 --> C026
+    C008 --> C027
+    C015 --> C027
     classDef depois stroke-dasharray: 5 5
     class C019,C020,C021,C022,C023,C024,C025 depois
 ```
@@ -153,6 +158,7 @@ flowchart LR
 | RF16 | CARD-022, CARD-023 |
 | RF17 | CARD-024 |
 | RF18 | CARD-026 |
+| RF19 | CARD-027 |
 | RN01 | CARD-005 |
 | RN02 | CARD-005 |
 | RN03 | CARD-006 |
@@ -165,11 +171,15 @@ flowchart LR
 | RN10 | CARD-005, CARD-007 |
 | RN11 | CARD-017 |
 | RN12 | CARD-018 |
+| RN13 | CARD-027 |
+| RN14 | CARD-027 |
+| RN15 | CARD-027 |
+| RN16 | CARD-027 |
 | RNF Plataforma (PWA instalável, HTTPS) | CARD-001, CARD-003 |
 | RNF Offline | CARD-003 |
 | RNF Armazenamento (IndexedDB persistente) | CARD-002 |
 | RNF Durabilidade (backup) | CARD-016, CARD-018 |
-| RNF Performance (< 200 ms, referência) | CARD-008, CARD-009, CARD-015 |
+| RNF Performance (< 200 ms, referência) | CARD-008, CARD-009, CARD-015, CARD-027 |
 | RNF Privacidade / LGPD | CARD-001 |
 | RNF Usabilidade (mobile-first) | CARD-004 |
 | RNF Custo zero | CARD-001 |
@@ -179,7 +189,8 @@ flowchart LR
 
 Detalhes de implementação que o refinamento não fixou e foram decididos na quebra dos cards:
 
-- Ordenação das listas: "Quero ir" pelo cadastro mais recente; "Já fui" pela última visita mais recente, com lugares sem visitas no fim (CARD-008).
+- Ordenação das listas: "Quero ir" pelo cadastro mais recente; "Já fui" pela última visita mais recente, com lugares sem visitas no fim (CARD-008). Essa passou a ser a ordem padrão das opções do CARD-027 (RN13–RN15).
+- A ordem escolhida não vai para a URL: fica em `meta.homeSort` e é lida a cada render da tela inicial (CARD-027).
 - A busca ignora maiúsculas e acentos, e o termo continua aplicado ao trocar de aba (CARD-009).
 - Filtros: OU entre opções do mesmo critério, E entre critérios diferentes (CARD-015).
 - No fluxo "Novo" da aba "Já fui", sair sem salvar a visita deixa o lugar em "Quero ir" (CARD-013).
