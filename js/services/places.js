@@ -1,6 +1,7 @@
 // Business rules for places. No DOM here; persistence goes through db/.
 import * as placesDb from '../db/places.js';
-import { ValidationError } from './errors.js';
+import * as visitsDb from '../db/visits.js';
+import { ValidationError, NotFoundError } from './errors.js';
 
 /** Place types (RN02): stored `value`, displayed `label`, in display order. */
 export const PLACE_TYPES = [
@@ -136,4 +137,33 @@ export async function createPlace(data) {
   const { errors, value } = validatePlace(data, existing);
   if (Object.keys(errors).length) throw new ValidationError(errors);
   return placesDb.save({ ...value, status: STATUS.WANT_TO_GO, favorite: false });
+}
+
+/** A place by ID, or `null` if it doesn't exist (deleted, or a bad link). */
+export async function getPlace(id) {
+  return (await placesDb.get(id)) ?? null;
+}
+
+/**
+ * Updates the editable fields of a place (RF02). Same rules as creation; the duplicate-name check
+ * ignores the place itself. Status, favorite and `createdAt` are kept (status follows the visits,
+ * RN04); `updatedAt` is refreshed. Throws `ValidationError`, or `NotFoundError` if it's gone.
+ */
+export async function updatePlace(id, data) {
+  const existing = await placesDb.list();
+  const place = existing.find((p) => p.id === id);
+  if (!place) throw new NotFoundError('place', id);
+  const { errors, value } = validatePlace(data, existing, { ignoreId: id });
+  if (Object.keys(errors).length) throw new ValidationError(errors);
+  return placesDb.save({ ...place, ...value });
+}
+
+/** How many visits a place has (shown before deleting it). */
+export async function countVisits(placeId) {
+  return (await visitsDb.listByPlace(placeId)).length;
+}
+
+/** Deletes a place and all of its visits in one transaction (RF03, RN06). Resolves with the visit count. */
+export function deletePlace(id) {
+  return placesDb.deleteWithVisits(id);
 }

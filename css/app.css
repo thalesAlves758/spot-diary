@@ -141,6 +141,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn-primary:active { background: var(--color-primary-strong); }
 .btn-danger { background: var(--color-danger); color: var(--color-on-primary); }
 .btn-ghost { background: transparent; color: var(--color-text); border-color: var(--color-border); }
+.btn-outline-danger { background: transparent; color: var(--color-danger); border-color: var(--color-danger); }
+.btn-outline-danger:active { background: #fdecec; }
+
+.danger-zone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+.danger-zone__text { color: var(--color-muted); font-size: var(--font-size-sm); }
 
 .fab {
   position: fixed;

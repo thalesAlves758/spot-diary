@@ -9,3 +9,13 @@ export class ValidationError extends Error {
     this.fields = fields;
   }
 }
+
+/** Thrown when a record the user is acting on no longer exists (e.g. deleted in another tab). */
+export class NotFoundError extends Error {
+  constructor(kind, id) {
+    super(`${kind} not found: ${id}`);
+    this.name = 'NotFoundError';
+    this.kind = kind;
+    this.id = id;
+  }
+}

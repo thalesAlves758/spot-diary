@@ -1,18 +1,19 @@
 // T3 — Create / edit place. Creation: CARD-005. Editing (`params.id`): CARD-007.
 import { h } from '../dom.js';
-import { replace } from '../../router.js';
+import { replace, goBack, resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
+import { confirmDialog } from '../components/confirm-dialog.js';
+import { createEmptyState } from '../components/empty-state.js';
 import { createTagInput } from '../components/tag-input.js';
-import { renderPlaceholder } from './placeholder.js';
-import { PLACE_TYPES, BRAZIL_STATES, createPlace, listTags } from '../../services/places.js';
-import { ValidationError } from '../../services/errors.js';
+import { plural } from '../format.js';
+import {
+  PLACE_TYPES, BRAZIL_STATES, createPlace, listTags, getPlace, updatePlace, countVisits, deletePlace,
+} from '../../services/places.js';
+import { ValidationError, NotFoundError } from '../../services/errors.js';
 
 export async function render(root, { params }) {
-  if (params.id) {
-    renderPlaceholder(root, { title: 'Editar lugar', backFallback: `/place/${params.id}`, card: 'CARD-007' });
-    return;
-  }
+  if (params.id) return renderEdit(root, params.id);
 
   const existingTags = await listTags();
 
@@ -32,6 +33,79 @@ export async function render(root, { params }) {
     ),
   );
   root.querySelector('#place-name').focus();
+}
+
+// Edit mode (CARD-007). The status isn't editable: it follows the visits (RN04).
+async function renderEdit(root, id) {
+  const detailPath = `/place/${encodeURIComponent(id)}`;
+  const [place, existingTags, visitCount] = await Promise.all([getPlace(id), listTags(), countVisits(id)]);
+
+  if (!place) {
+    root.append(
+      createHeader({ title: 'Editar lugar', back: true }),
+      h('main', { class: 'page' }, createEmptyState({
+        title: 'Lugar não encontrado',
+        message: 'Ele pode ter sido excluído.',
+        action: { label: 'Ir para o início', onClick: () => resetTo('/') },
+      })),
+    );
+    return;
+  }
+
+  const deleteButton = h('button', { type: 'button', class: 'btn btn-outline-danger btn-block' }, 'Excluir lugar');
+  deleteButton.addEventListener('click', async () => {
+    const confirmed = await confirmDialog({
+      title: `Excluir "${place.name}"?`,
+      message: (visitCount === 0 ? 'Esse lugar não tem visitas registradas. '
+        : visitCount === 1 ? '1 visita será apagada junto com o lugar. '
+          : `${visitCount} visitas serão apagadas junto com o lugar. `)
+        + 'Essa ação não pode ser desfeita.',
+      confirmLabel: 'Excluir',
+      danger: true,
+    });
+    if (!confirmed) return;
+    deleteButton.disabled = true;
+    try {
+      await deletePlace(id);
+      showToast('Lugar excluído');
+      // Clears the history too: back from home must not reach the deleted place's screens.
+      await resetTo('/');
+    } catch (error) {
+      console.error(error);
+      showToast('Não foi possível excluir. Tente de novo.');
+      deleteButton.disabled = false;
+    }
+  });
+
+  root.append(
+    createHeader({ title: 'Editar lugar', back: true, backFallback: detailPath }),
+    h('main', { class: 'page' },
+      buildPlaceForm({
+        initial: place,
+        existingTags,
+        submitLabel: 'Salvar alterações',
+        onSubmit: async (data) => {
+          try {
+            await updatePlace(id, data);
+          } catch (error) {
+            if (!(error instanceof NotFoundError)) throw error;
+            showToast('Esse lugar não existe mais.');
+            await resetTo('/');
+            return;
+          }
+          showToast('Alterações salvas');
+          goBack(detailPath);
+        },
+      }),
+      h('section', { class: 'danger-zone', 'aria-label': 'Excluir lugar' },
+        h('p', { class: 'danger-zone__text' },
+          visitCount
+            ? `Excluir apaga também ${plural(visitCount, 'visita registrada', 'visitas registradas')}.`
+            : 'Esse lugar ainda não tem visitas registradas.'),
+        deleteButton,
+      ),
+    ),
+  );
 }
 
 /**

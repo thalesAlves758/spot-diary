@@ -7,7 +7,7 @@ camadas: [front, banco]
 complexidade: M
 prioridade: mvp
 incerteza: baixa
-status: todo
+status: done
 requisitos: [RF02, RF03, RN06, RN10]
 depende_de: [CARD-005]
 ---

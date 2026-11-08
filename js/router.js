@@ -54,6 +54,24 @@ export async function replace(path) {
 }
 
 /**
+ * Goes back to the app's first history entry and replaces it with `path`, dropping every screen
+ * in between. Used after deleting something: back from the destination must not reach a screen
+ * that shows the deleted record.
+ */
+export async function resetTo(path) {
+  await idle;
+  const steps = depth();
+  if (steps > 0) {
+    // One popstate arrives for history.go(-n); it's counted as ours so nothing renders mid-way.
+    if (pendingBacks++ === 0) idle = new Promise((resolve) => { resolveIdle = resolve; });
+    history.go(-steps);
+    await idle;
+  }
+  history.replaceState({ depth: 0 }, '', '#' + path);
+  render();
+}
+
+/**
  * Changes the query of the current screen (e.g. the selected tab) without a new history entry
  * and without re-rendering. `params`: object or URLSearchParams; empty values are dropped.
  */
