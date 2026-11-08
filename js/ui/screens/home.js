@@ -1,5 +1,5 @@
-// T1 — Home: "Quero ir" / "Já fui" tabs with place cards (CARD-008).
-// Search (CARD-009), filters (CARD-015) and the backup reminder (CARD-018) arrive later.
+// T1 — Home: "Quero ir" / "Já fui" tabs with place cards (CARD-008) and search by name (CARD-009).
+// Filters (CARD-015) and the backup reminder (CARD-018) arrive later.
 import { h } from '../dom.js';
 import { icon } from '../icons.js';
 import { navigate, setQuery } from '../../router.js';
@@ -7,7 +7,10 @@ import { createHeader, iconButton } from '../components/header.js';
 import { createEmptyState } from '../components/empty-state.js';
 import { formatAverage, formatDate } from '../format.js';
 import { loadHomeLists } from '../../services/lists.js';
+import { searchByName, normalizeTerm } from '../../services/filters.js';
 import { STATUS, placeTypeLabel } from '../../services/places.js';
+
+const SEARCH_DEBOUNCE_MS = 150;
 
 const TABS = [
   { status: STATUS.WANT_TO_GO, label: 'Quero ir' },
@@ -30,9 +33,20 @@ const MAX_TAGS_ON_CARD = 3;
 export async function render(root, { query }) {
   const lists = await loadHomeLists();
   let current = query.get('tab') === STATUS.BEEN_THERE ? STATUS.BEEN_THERE : STATUS.WANT_TO_GO;
+  let term = query.get('q') ?? '';
+  let debounce = null;
 
   const tabButtons = new Map();
+  const tabCounts = new Map();
   const panel = h('section', { class: 'tab-panel', id: 'home-panel', role: 'tabpanel' });
+
+  // Redraws counts and list for the current tab and term, and keeps both in the URL
+  // so going back from a place returns to the same tab and search.
+  const update = () => {
+    for (const { status } of TABS) tabCounts.get(status).textContent = String(searchByName(lists[status], term).length);
+    panel.replaceChildren(renderList(lists[current], current, term, clearSearch));
+    setQuery({ tab: current === STATUS.WANT_TO_GO ? null : current, q: normalizeTerm(term) ? term : null });
+  };
 
   const select = (status, { focus = false } = {}) => {
     current = status;
@@ -43,12 +57,13 @@ export async function render(root, { query }) {
       if (selected && focus) button.focus();
     }
     panel.setAttribute('aria-labelledby', `tab-${status}`);
-    panel.replaceChildren(renderList(lists[status], status));
-    setQuery({ tab: status === STATUS.WANT_TO_GO ? null : status });
+    update();
   };
 
   const tablist = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Listas' },
     TABS.map(({ status, label }) => {
+      const count = h('span', { class: 'tab__count' });
+      tabCounts.set(status, count);
       const button = h('button', {
         type: 'button',
         class: 'tab',
@@ -56,12 +71,56 @@ export async function render(root, { query }) {
         id: `tab-${status}`,
         'aria-controls': 'home-panel',
         onclick: () => select(status),
-      },
-      h('span', {}, label),
-      h('span', { class: 'tab__count' }, String(lists[status].length)));
+      }, h('span', {}, label), count);
       tabButtons.set(status, button);
       return button;
     }),
+  );
+
+  // ---- Search (RF09) ----
+  const searchInput = h('input', {
+    type: 'search',
+    class: 'search__input',
+    placeholder: 'Buscar por nome',
+    'aria-label': 'Buscar lugar por nome',
+    autocomplete: 'off',
+    enterkeyhint: 'search',
+    value: term,
+  });
+  const clearButton = h('button', {
+    type: 'button',
+    class: 'icon-btn search__clear',
+    'aria-label': 'Limpar busca',
+    hidden: !term,
+  }, icon('close'));
+
+  function clearSearch() {
+    clearTimeout(debounce);
+    searchInput.value = '';
+    term = '';
+    clearButton.hidden = true;
+    update();
+    searchInput.focus();
+  }
+
+  searchInput.addEventListener('input', () => {
+    clearButton.hidden = !searchInput.value;
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      term = searchInput.value;
+      update();
+    }, SEARCH_DEBOUNCE_MS);
+  });
+  // Enter just closes the on-screen keyboard; results are already live.
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') searchInput.blur();
+  });
+  clearButton.addEventListener('click', clearSearch);
+
+  const searchBar = h('div', { class: 'search', role: 'search' },
+    h('span', { class: 'search__icon' }, icon('search')),
+    searchInput,
+    clearButton,
   );
   // Arrow keys move between tabs (WAI-ARIA tabs pattern).
   tablist.addEventListener('keydown', (event) => {
@@ -76,19 +135,30 @@ export async function render(root, { query }) {
       title: 'Diário de Rolê',
       actions: [iconButton({ name: 'backup', label: 'Backup', onClick: () => navigate('/backup') })],
     }),
-    tablist,
+    h('div', { class: 'home-bar' }, tablist, searchBar),
     h('main', { class: 'page' }, panel),
     h('button', { type: 'button', class: 'fab', onclick: () => navigate('/place/new') },
       icon('plus'), h('span', {}, 'Novo')),
   );
   select(current);
+
+  return () => clearTimeout(debounce);
 }
 
-function renderList(items, status) {
-  if (!items.length) {
+function renderList(allItems, status, term, clearSearch) {
+  if (!allItems.length) {
     return createEmptyState({
       ...EMPTY[status],
       action: { label: 'Cadastrar lugar', onClick: () => navigate('/place/new') },
+    });
+  }
+  const items = searchByName(allItems, term);
+  if (!items.length) {
+    const tab = TABS.find((t) => t.status === status).label;
+    return createEmptyState({
+      title: 'Nenhum lugar encontrado',
+      message: `Nada com "${term.trim()}" em "${tab}".`,
+      action: { label: 'Limpar busca', onClick: clearSearch },
     });
   }
   const list = h('ul', { class: 'card-list' });

@@ -23,6 +23,7 @@ const ASSETS = [
   'js/db/visits.js',
   'js/services/backup.js',
   'js/services/errors.js',
+  'js/services/filters.js',
   'js/services/lists.js',
   'js/services/places.js',
   'js/services/summary.js',
