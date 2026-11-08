@@ -13,6 +13,14 @@ export function formatDate(isoDate) {
   return `${day}/${month}/${year}`;
 }
 
+/** ISO date-time → "07/11/2026 às 15:30", in the device's time zone. */
+export function formatDateTime(iso) {
+  const date = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} às `
+    + `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 /** 1 → "1 visita", 3 → "3 visitas" */
 export function plural(count, singular, pluralForm) {
   return `${count} ${count === 1 ? singular : pluralForm}`;

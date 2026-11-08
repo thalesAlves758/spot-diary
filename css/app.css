@@ -310,6 +310,21 @@ select.field__input { appearance: auto; }
 }
 .tag--more { background: var(--color-border); color: var(--color-text); }
 
+/* ===== Panels (backup screen) ===== */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.panel + .panel { margin-top: var(--space-4); }
+.panel__title { font-size: var(--font-size-lg); }
+.panel__text { color: var(--color-muted); }
+.backup__last { font-weight: 600; }
+
 /* ===== Empty state ===== */
 .empty-state {
   display: flex;
