@@ -6,17 +6,17 @@ import { returnTo, resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { createEmptyState } from '../components/empty-state.js';
-import { renderPlaceholder } from './placeholder.js';
+import { confirmDialog } from '../components/confirm-dialog.js';
+import { formatDate } from '../format.js';
 import { getPlace } from '../../services/places.js';
-import { recordVisit, COMMENT_MAX } from '../../services/visits.js';
+import {
+  recordVisit, getVisit, updateVisit, deleteVisit, COMMENT_MAX,
+} from '../../services/visits.js';
 import { todayLocal } from '../../services/dates.js';
 import { ValidationError, NotFoundError } from '../../services/errors.js';
 
 export async function render(root, { params }) {
-  if (params.id) {
-    renderPlaceholder(root, { title: 'Editar visita', backFallback: '/', card: 'CARD-012' });
-    return;
-  }
+  if (params.id) return renderEdit(root, params.id);
 
   const placeId = params.placeId;
   const placePath = `/place/${encodeURIComponent(placeId)}`;
@@ -53,6 +53,80 @@ export async function render(root, { params }) {
           returnTo(placePath);
         },
       }),
+    ),
+  );
+}
+
+// Edit mode (CARD-012): same form and rules; deleting a visit never changes the place's status.
+async function renderEdit(root, id) {
+  const found = await getVisit(id);
+
+  if (!found || !found.place) {
+    root.append(
+      createHeader({ title: 'Editar visita', back: true }),
+      h('main', { class: 'page' }, createEmptyState({
+        title: 'Visita não encontrada',
+        message: 'Ela pode ter sido excluída.',
+        action: { label: 'Ir para o início', onClick: () => resetTo('/') },
+      })),
+    );
+    return;
+  }
+
+  const { visit, place } = found;
+  const placePath = `/place/${encodeURIComponent(place.id)}`;
+
+  // The visit is gone (another tab, or deleted meanwhile): leave for the place's detail.
+  const handleGone = (error) => {
+    if (!(error instanceof NotFoundError)) throw error;
+    showToast('Essa visita não existe mais.');
+    return returnTo(placePath);
+  };
+
+  const deleteButton = h('button', { type: 'button', class: 'btn btn-outline-danger btn-block' }, 'Excluir visita');
+  deleteButton.addEventListener('click', async () => {
+    const confirmed = await confirmDialog({
+      title: 'Excluir visita?',
+      message: `A visita de ${formatDate(visit.date)} será apagada. O lugar continua em "Já fui". `
+        + 'Essa ação não pode ser desfeita.',
+      confirmLabel: 'Excluir',
+      danger: true,
+    });
+    if (!confirmed) return;
+    deleteButton.disabled = true;
+    try {
+      await deleteVisit(id);
+      showToast('Visita excluída');
+      await returnTo(placePath);
+    } catch (error) {
+      console.error(error);
+      showToast('Não foi possível excluir. Tente de novo.');
+      deleteButton.disabled = false;
+    }
+  });
+
+  root.append(
+    createHeader({ title: 'Editar visita', back: true, backFallback: placePath }),
+    h('main', { class: 'page' },
+      h('p', { class: 'visit-form__place' }, place.name),
+      buildVisitForm({
+        initial: visit,
+        submitLabel: 'Salvar alterações',
+        onSubmit: async (data) => {
+          try {
+            await updateVisit(id, data);
+          } catch (error) {
+            await handleGone(error);
+            return;
+          }
+          showToast('Visita atualizada');
+          returnTo(placePath);
+        },
+      }),
+      h('section', { class: 'danger-zone', 'aria-label': 'Excluir visita' },
+        h('p', { class: 'danger-zone__text' }, 'Excluir apaga só esta visita; o lugar continua em "Já fui".'),
+        deleteButton,
+      ),
     ),
   );
 }

@@ -34,6 +34,31 @@ export function validateVisit(data, { today = todayLocal() } = {}) {
   return { errors, value };
 }
 
+/** A visit and its place, or `null` if the visit doesn't exist. */
+export async function getVisit(id) {
+  const visit = await visitsDb.get(id);
+  if (!visit) return null;
+  return { visit, place: (await placesDb.get(visit.placeId)) ?? null };
+}
+
+/**
+ * Updates a visit (RF05) with the same rules as recording it. The place's status never changes
+ * here (RN04). The record is rebuilt from the valid fields, so clearing the comment removes it.
+ * Throws `ValidationError` or `NotFoundError`. Resolves with the stored visit.
+ */
+export async function updateVisit(id, data) {
+  const current = await visitsDb.get(id);
+  if (!current) throw new NotFoundError('visit', id);
+  const { errors, value } = validateVisit(data);
+  if (Object.keys(errors).length) throw new ValidationError(errors);
+  return visitsDb.save({ id, placeId: current.placeId, createdAt: current.createdAt, ...value });
+}
+
+/** Deletes one visit. The place stays as it is, even with no visits left (RN04). */
+export function deleteVisit(id) {
+  return visitsDb.remove(id);
+}
+
 /**
  * Records a visit (RF04). If the place is still "Quero ir", it moves to "Já fui" in the same
  * transaction (RN04): a failure saves neither. Throws `ValidationError` or `NotFoundError`.

@@ -48,7 +48,6 @@ const ASSETS = [
   'js/ui/screens/home.js',
   'js/ui/screens/place-detail.js',
   'js/ui/screens/place-form.js',
-  'js/ui/screens/placeholder.js',
   'js/ui/screens/visit-form.js',
   'icons/icon.svg',
   'icons/icon-192.png',
