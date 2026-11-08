@@ -1,12 +1,12 @@
 # Cards — Diário de Rolê
 
-**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)).
+**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)). Atualizado em 08/11/2026 com o RF18 (apagar todos os dados → CARD-026).
 
 ## Resumo
 
-- **Total:** 25 cards — 18 do MVP e 7 para depois.
-- **Complexidade (todos):** P 11 · M 14 · G 0.
-- **Complexidade (MVP):** P 7 · M 11.
+- **Total:** 26 cards — 19 do MVP e 7 para depois.
+- **Complexidade (todos):** P 12 · M 14 · G 0.
+- **Complexidade (MVP):** P 8 · M 11.
 - **Incerteza alta:** CARD-022, CARD-024 (spikes de evolução). **Incerteza média:** CARD-003, CARD-017, CARD-019, CARD-020, CARD-021, CARD-023, CARD-025.
 
 ## Quadro
@@ -38,6 +38,7 @@
 | [CARD-023](07-evolucao/CARD-023-busca-de-lugar-no-mapa.md) | Busca de lugar no mapa | evolucao | integracao | M | depois | media | todo | 022 |
 | [CARD-024](07-evolucao/CARD-024-spike-login-e-sync.md) | Spike: login e sincronização | evolucao | spike | P | depois | alta | todo | 017 |
 | [CARD-025](07-evolucao/CARD-025-spike-migracao-react.md) | Spike: plano de migração da interface para React | evolucao | spike | P | depois | media | todo | 015, 018 |
+| [CARD-026](06-backup/CARD-026-apagar-todos-os-dados.md) | Apagar todos os dados | backup | feature | P | mvp | baixa | todo | 016 |
 
 ## Ordem sugerida de execução
 
@@ -48,7 +49,7 @@ Cards da mesma onda podem rodar em paralelo.
 1. CARD-001 (Estrutura do projeto e publicação)
 2. CARD-002 (Camada de dados (IndexedDB)), CARD-003 (Service worker e modo offline), CARD-004 (Shell da interface e componentes base)
 3. CARD-005 (Cadastrar lugar), CARD-008 (Tela inicial com abas e cards), CARD-016 (Exportar backup)
-4. CARD-006 (Tags com autocomplete), CARD-007 (Editar e excluir lugar), CARD-009 (Busca por nome), CARD-010 (Detalhe do lugar), CARD-017 (Importar backup (substituir ou mesclar)), CARD-018 (Lembrete de backup)
+4. CARD-006 (Tags com autocomplete), CARD-007 (Editar e excluir lugar), CARD-009 (Busca por nome), CARD-010 (Detalhe do lugar), CARD-017 (Importar backup (substituir ou mesclar)), CARD-018 (Lembrete de backup), CARD-026 (Apagar todos os dados)
 5. CARD-011 (Registrar visita), CARD-014 (Favoritar lugar)
 6. CARD-012 (Editar e excluir visita), CARD-013 (Botão "Novo" na aba "Já fui"), CARD-015 (Filtros (tipo, tags, favoritos, voltaria, nota mínima))
 
@@ -89,6 +90,7 @@ flowchart LR
     C023["023 Busca de lugar no mapa"]
     C024["024 Spike: login e sincronização"]
     C025["025 Spike: plano de migração da interface para React"]
+    C026["026 Apagar todos os dados"]
     C001 --> C002
     C001 --> C003
     C001 --> C004
@@ -124,6 +126,7 @@ flowchart LR
     C017 --> C024
     C015 --> C025
     C018 --> C025
+    C016 --> C026
     classDef depois stroke-dasharray: 5 5
     class C019,C020,C021,C022,C023,C024,C025 depois
 ```
@@ -149,6 +152,7 @@ flowchart LR
 | RF15 | CARD-019, CARD-020, CARD-021 |
 | RF16 | CARD-022, CARD-023 |
 | RF17 | CARD-024 |
+| RF18 | CARD-026 |
 | RN01 | CARD-005 |
 | RN02 | CARD-005 |
 | RN03 | CARD-006 |
@@ -182,6 +186,7 @@ Detalhes de implementação que o refinamento não fixou e foram decididos na qu
 - No import com "mesclar", as visitas de um lugar ignorado por nome duplicado também são ignoradas, para não gerar visitas órfãs (CARD-017).
 - "Depois" no lembrete de backup esconde o banner até a próxima abertura do app (CARD-018).
 - A migração para React virou spike porque a reescrita completa passa de 1 dia (CARD-025).
+- "Apagar todos os dados" limpa lugares, visitas e `lastExportAt`, mas mantém `schemaVersion` e `persistentStorage`. A confirmação tem dois passos e não existe desfazer: para voltar atrás, é preciso importar um backup (CARD-026).
 - Testes automatizados são opcionais; as funções puras de `services/` podem ser testadas com `node --test`.
 
 ## Perguntas em aberto

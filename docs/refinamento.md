@@ -24,6 +24,7 @@ O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e log
 - Favoritar lugar
 - Abas "Quero ir" e "Já fui", com busca por nome e filtros por tipo, tag, favoritos, "voltaria" e nota mínima
 - Exportar e importar dados em JSON, com lembrete de backup
+- Apagar todos os dados do aparelho, com confirmação dupla
 - App instalável na tela inicial, funcionando 100% offline
 
 **Fica para depois**
@@ -41,7 +42,7 @@ O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e log
 
 ## Requisitos funcionais
 
-São 14 requisitos no MVP e 3 para depois, no formato ação → resposta do sistema.
+São 15 requisitos no MVP e 3 para depois, no formato ação → resposta do sistema.
 
 | ID | Requisito (ação → resposta) | Prioridade |
 | --- | --- | --- |
@@ -62,6 +63,7 @@ São 14 requisitos no MVP e 3 para depois, no formato ação → resposta do sis
 | RF15 | Anexar fotos à visita → comprime e salva junto da visita | Depois |
 | RF16 | Buscar lugar no mapa → preenche nome, endereço e localização | Depois |
 | RF17 | Entrar com conta → sincroniza dados entre aparelhos | Depois |
+| RF18 | Apagar todos os dados → mostra o que será apagado e a data do último backup, pede confirmação dupla e remove todos os lugares e visitas | MVP |
 
 **Critérios de aceite**
 
@@ -195,11 +197,11 @@ São 6 telas no MVP; a tela de início concentra lista, busca e acesso aos filtr
 - **Elementos:** data\* (padrão: hoje), nota\* (5 estrelas), "voltaria?"\* (sim/não), comentário; "Salvar"; na edição, "Excluir visita".
 - **Estados:** erro de validação (data futura, campos obrigatórios); confirmação ao excluir a visita.
 
-**T6 — Configurações / Backup** · RF12, RF13, RF14
+**T6 — Configurações / Backup** · RF12, RF13, RF14, RF18
 
 - **Objetivo:** proteger os dados.
-- **Elementos:** data do último export; botão "Exportar"; botão "Importar"; resumo do arquivo antes de importar; escolha "Mesclar" / "Substituir tudo"; versão do app.
-- **Estados:** carregando durante import/export; erro de arquivo inválido; sucesso com totais importados.
+- **Elementos:** data do último export; botão "Exportar"; botão "Importar"; resumo do arquivo antes de importar; escolha "Mesclar" / "Substituir tudo"; botão "Apagar todos os dados", separado no fim da tela; versão do app.
+- **Estados:** carregando durante import/export; erro de arquivo inválido; sucesso com totais importados; confirmação em dois passos antes de apagar tudo; botão de apagar desabilitado quando não há dados.
 
 ## Modelo de dados
 
