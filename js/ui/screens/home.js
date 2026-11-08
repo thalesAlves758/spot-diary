@@ -1,14 +1,16 @@
-// T1 — Home: "Quero ir" / "Já fui" tabs with place cards (CARD-008) and search by name (CARD-009).
-// Filters (CARD-015) and the backup reminder (CARD-018) arrive later.
+// T1 — Home: "Quero ir" / "Já fui" tabs with place cards (CARD-008), search by name (CARD-009)
+// and the backup reminder (CARD-018). Filters arrive in CARD-015.
 import { h } from '../dom.js';
 import { icon } from '../icons.js';
 import { navigate, setQuery } from '../../router.js';
 import { createHeader, iconButton } from '../components/header.js';
 import { createEmptyState } from '../components/empty-state.js';
+import { createBackupReminder, isBackupReminderDismissed } from '../components/backup-reminder.js';
 import { formatAverage, formatDate } from '../format.js';
 import { loadHomeLists } from '../../services/lists.js';
 import { searchByName, normalizeTerm } from '../../services/filters.js';
 import { STATUS, placeTypeLabel } from '../../services/places.js';
+import { getLastExportAt, shouldRemindBackup } from '../../services/backup.js';
 
 const SEARCH_DEBOUNCE_MS = 150;
 
@@ -31,7 +33,11 @@ const EMPTY = {
 const MAX_TAGS_ON_CARD = 3;
 
 export async function render(root, { query }) {
-  const lists = await loadHomeLists();
+  const [lists, lastExportAt] = await Promise.all([loadHomeLists(), getLastExportAt()]);
+  const placeCount = lists[STATUS.WANT_TO_GO].length + lists[STATUS.BEEN_THERE].length;
+  const reminder = !isBackupReminderDismissed() && shouldRemindBackup({ lastExportAt, placeCount })
+    ? createBackupReminder({ neverExported: !lastExportAt, onExport: () => navigate('/backup') })
+    : null;
   let current = query.get('tab') === STATUS.BEEN_THERE ? STATUS.BEEN_THERE : STATUS.WANT_TO_GO;
   let term = query.get('q') ?? '';
   let debounce = null;
@@ -136,7 +142,7 @@ export async function render(root, { query }) {
       actions: [iconButton({ name: 'backup', label: 'Backup', onClick: () => navigate('/backup') })],
     }),
     h('div', { class: 'home-bar' }, tablist, searchBar),
-    h('main', { class: 'page' }, panel),
+    h('main', { class: 'page' }, reminder, panel),
     h('button', { type: 'button', class: 'fab', onclick: () => navigate('/place/new') },
       icon('plus'), h('span', {}, 'Novo')),
   );

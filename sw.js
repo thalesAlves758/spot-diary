@@ -31,6 +31,7 @@ const ASSETS = [
   'js/ui/dom.js',
   'js/ui/format.js',
   'js/ui/icons.js',
+  'js/ui/components/backup-reminder.js',
   'js/ui/components/bottom-sheet.js',
   'js/ui/components/confirm-dialog.js',
   'js/ui/components/empty-state.js',

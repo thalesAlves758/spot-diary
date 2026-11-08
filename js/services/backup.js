@@ -44,6 +44,19 @@ export function getLastExportAt() {
   return meta.get('lastExportAt');
 }
 
+export const BACKUP_REMINDER_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Backup reminder rule (RN12, RF14). Pure.
+ * Remind when the last export is more than 30 days old, or when there was never an export
+ * and there is at least one place.
+ */
+export function shouldRemindBackup({ lastExportAt, placeCount, now = new Date() }) {
+  if (!lastExportAt) return placeCount > 0;
+  return now.getTime() - Date.parse(lastExportAt) > BACKUP_REMINDER_DAYS * DAY_MS;
+}
+
 /** How many places and visits an export would contain right now. */
 export async function countData() {
   const [places, visits] = await Promise.all([placesDb.list(), visitsDb.listAll()]);
