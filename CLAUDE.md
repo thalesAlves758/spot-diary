@@ -53,7 +53,7 @@ Key invariants that span layers:
 
 ## Service worker gotchas
 
-- Cache is versioned (`diario-vN`); **bump the version on every deploy** or users won't get updates.
+- Cache is versioned (`diario-vN`); **bump the version whenever any app file changes** (in the same commit), not only when files are added. The SW is cache-first and the browser only installs a new SW when `sw.js` itself changes: editing `home.js` alone leaves every installed copy — including the dev browser — on the old files forever.
 - With no build, the precache list is a hand-maintained `ASSETS` constant in `sw.js` — **every new file must be added there** or it breaks offline mode.
 - Never cache user data; it lives only in IndexedDB.
 
