@@ -407,6 +407,11 @@ select.field__input { appearance: auto; }
 .reminder__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); }
 
 /* ===== Place cards ===== */
+/* Favorite toggle (CARD-014) */
+.favorite-btn { color: var(--color-muted); }
+.favorite-btn--on { color: var(--color-danger); }
+.favorite-btn--on .icon { fill: currentColor; }
+
 .card-list { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
 .place-card {
   display: flex;
@@ -420,10 +425,10 @@ select.field__input { appearance: auto; }
   text-decoration: none;
 }
 .place-card:active { background: #fbf3ec; }
-.place-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.card-item { position: relative; }
+.card-item .place-card { padding-right: 56px; }
+.card-item__favorite { position: absolute; top: 4px; right: 4px; }
 .place-card__name { font-size: 1.0625rem; line-height: 1.35; }
-.place-card__favorite { color: var(--color-danger); }
-.place-card__favorite .icon { fill: currentColor; width: 20px; height: 20px; }
 .place-card__type { color: var(--color-muted); font-size: var(--font-size-sm); }
 .place-card__visits {
   display: flex;
@@ -492,8 +497,7 @@ select.field__input { appearance: auto; }
 .detail__place { display: flex; flex-direction: column; gap: var(--space-2); }
 .detail__title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
 .detail__name { font-size: 1.5rem; line-height: 1.25; }
-.detail__favorite { color: var(--color-danger); padding-top: 4px; }
-.detail__favorite .icon { fill: currentColor; }
+.detail__favorite { margin: -6px -10px 0 0; }
 .detail__meta { color: var(--color-muted); }
 .detail__address { display: flex; flex-direction: column; font-style: normal; }
 .detail__section-title { font-size: var(--font-size-md); margin: 0 0 var(--space-3); }

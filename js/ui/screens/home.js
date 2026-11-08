@@ -6,6 +6,7 @@ import { navigate, setQuery } from '../../router.js';
 import { createHeader, iconButton } from '../components/header.js';
 import { createEmptyState } from '../components/empty-state.js';
 import { createBackupReminder, isBackupReminderDismissed } from '../components/backup-reminder.js';
+import { createFavoriteButton } from '../components/favorite-button.js';
 import { formatAverage, formatDate } from '../format.js';
 import { loadHomeLists } from '../../services/lists.js';
 import { searchByName, normalizeTerm } from '../../services/filters.js';
@@ -189,7 +190,8 @@ function renderCard({ place, summary }, status) {
       : h('p', { class: 'place-card__visits place-card__visits--none' }, 'Nenhuma visita registrada');
   }
 
-  return h('li', {},
+  // The heart is a sibling of the link (a button inside a link is invalid and would open the card).
+  return h('li', { class: 'card-item' },
     h('a', {
       class: 'place-card',
       href,
@@ -198,15 +200,20 @@ function renderCard({ place, summary }, status) {
         navigate(`/place/${encodeURIComponent(place.id)}`);
       },
     },
-    h('div', { class: 'place-card__top' },
-      h('h2', { class: 'place-card__name' }, place.name),
-      place.favorite && h('span', { class: 'place-card__favorite', role: 'img', 'aria-label': 'Favorito' }, icon('heart')),
-    ),
+    h('h2', { class: 'place-card__name' }, place.name),
     h('p', { class: 'place-card__type' }, placeTypeLabel(place.type)),
     tags.length > 0 && h('ul', { class: 'tag-list', 'aria-label': 'Tags' },
       tags.slice(0, MAX_TAGS_ON_CARD).map((tag) => h('li', { class: 'tag' }, tag)),
       extraTags > 0 && h('li', { class: 'tag tag--more' }, `+${extraTags}`, h('span', { class: 'sr-only' }, ' tags'))),
     visitLine,
     ),
+    createFavoriteButton({
+      placeId: place.id,
+      placeName: place.name,
+      favorite: place.favorite,
+      className: 'card-item__favorite',
+      // Keep the in-memory list in sync so switching tabs shows the right heart.
+      onChange: (favorite) => { place.favorite = favorite; },
+    }),
   );
 }

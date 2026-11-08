@@ -38,6 +38,7 @@ const ASSETS = [
   'js/ui/components/bottom-sheet.js',
   'js/ui/components/confirm-dialog.js',
   'js/ui/components/empty-state.js',
+  'js/ui/components/favorite-button.js',
   'js/ui/components/header.js',
   'js/ui/components/stars.js',
   'js/ui/components/tag-input.js',

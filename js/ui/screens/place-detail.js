@@ -5,6 +5,7 @@ import { navigate, resetTo } from '../../router.js';
 import { createHeader, iconButton } from '../components/header.js';
 import { createEmptyState } from '../components/empty-state.js';
 import { createStars } from '../components/stars.js';
+import { createFavoriteButton } from '../components/favorite-button.js';
 import { formatAddress, formatAverage, formatDate, plural } from '../format.js';
 import { getPlaceDetail, placeTypeLabel, STATUS } from '../../services/places.js';
 
@@ -40,7 +41,7 @@ export async function render(root, { params }) {
       h('section', { class: 'detail__place' },
         h('div', { class: 'detail__title-row' },
           h('h2', { class: 'detail__name' }, place.name),
-          place.favorite && h('span', { class: 'detail__favorite', role: 'img', 'aria-label': 'Favorito' }, icon('heart')),
+          createFavoriteButton({ placeId: place.id, placeName: place.name, favorite: place.favorite, className: 'detail__favorite' }),
         ),
         h('p', { class: 'detail__meta' },
           placeTypeLabel(place.type), ' · ', place.status === STATUS.BEEN_THERE ? 'Já fui' : 'Quero ir'),

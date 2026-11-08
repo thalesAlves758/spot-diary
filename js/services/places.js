@@ -173,6 +173,17 @@ export async function updatePlace(id, data) {
   return placesDb.save({ ...place, ...value });
 }
 
+/**
+ * Toggles "favorite" (RF07). Independent of status and rating (RN09); refreshes `updatedAt`.
+ * Resolves with the new value. Throws `NotFoundError` if the place is gone.
+ */
+export async function toggleFavorite(id) {
+  const place = await placesDb.get(id);
+  if (!place) throw new NotFoundError('place', id);
+  const saved = await placesDb.save({ ...place, favorite: !place.favorite });
+  return saved.favorite;
+}
+
 /** How many visits a place has (shown before deleting it). */
 export async function countVisits(placeId) {
   return (await visitsDb.listByPlace(placeId)).length;
