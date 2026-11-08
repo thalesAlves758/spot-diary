@@ -28,6 +28,21 @@ export function save(visit) {
   });
 }
 
+/**
+ * Saves a visit and, if given, a place in the same transaction (both stamped): either both are
+ * written or neither is. Which place changes (and how) is decided by services/.
+ * Resolves with `{ visit, place }` as stored (`place` is null when not given).
+ */
+export function saveWithPlace(visit, place = null) {
+  const visitRecord = stamp(visit);
+  const placeRecord = place ? stamp(place) : null;
+  return transaction([STORE, 'places'], 'readwrite', (tx) => {
+    tx.objectStore(STORE).put(visitRecord);
+    if (placeRecord) tx.objectStore('places').put(placeRecord);
+    return { visit: visitRecord, place: placeRecord };
+  });
+}
+
 /** Deletes a visit. */
 export function remove(id) {
   return transaction(STORE, 'readwrite', (tx) => {

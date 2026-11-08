@@ -1,6 +1,6 @@
 // T3 — Create / edit place. Creation: CARD-005. Editing (`params.id`): CARD-007.
 import { h } from '../dom.js';
-import { replace, goBack, resetTo } from '../../router.js';
+import { replace, returnTo, resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { confirmDialog } from '../components/confirm-dialog.js';
@@ -94,7 +94,7 @@ async function renderEdit(root, id) {
             return;
           }
           showToast('Alterações salvas');
-          goBack(detailPath);
+          returnTo(detailPath);
         },
       }),
       h('section', { class: 'danger-zone', 'aria-label': 'Excluir lugar' },

@@ -212,6 +212,53 @@ select.field__input { appearance: auto; }
 }
 .fieldset__legend { padding: 0 var(--space-2); font-weight: 600; }
 
+.field__textarea { min-height: 96px; padding: var(--space-2) var(--space-3); resize: vertical; line-height: 1.4; }
+
+/* ===== Visit form (CARD-011) ===== */
+.visit-form__place { margin-bottom: var(--space-4); font-size: var(--font-size-lg); font-weight: 700; }
+
+/* Native radios stay focusable for keyboard and screen readers, but are drawn by their labels. */
+.rating__input, .choice__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rating { display: flex; gap: var(--space-1); }
+.rating[aria-invalid="true"], .choice[aria-invalid="true"] { border-radius: var(--radius-sm); outline: 2px solid var(--color-danger); outline-offset: 2px; }
+.rating__star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #d6d3d1;
+  cursor: pointer;
+}
+.rating__star .icon { width: 36px; height: 36px; fill: currentColor; }
+.rating__star--on { color: #d97706; }
+.rating__input:focus-visible + .rating__star { outline: 3px solid var(--color-primary); outline-offset: -2px; }
+
+.choice { display: flex; gap: var(--space-2); }
+.choice__option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+.choice__input:checked + .choice__option { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+.choice__input:focus-visible + .choice__option { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
 /* ===== Tag chips ===== */
 .chips-field { display: flex; flex-direction: column; gap: var(--space-2); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }

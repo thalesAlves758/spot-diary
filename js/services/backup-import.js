@@ -9,6 +9,7 @@ import {
   PLACE_TYPES, BRAZIL_STATES, STATUS, ADDRESS_FIELDS, cleanTags, cleanAddress, nameKey,
 } from './places.js';
 import { ImportError } from './errors.js';
+import { isCalendarDate } from './dates.js';
 
 export const IMPORT_MODE = { MERGE: 'merge', REPLACE: 'replace' };
 
@@ -20,14 +21,6 @@ const isObject = (v) => typeof v === 'object' && v !== null && !Array.isArray(v)
 const isNonEmptyString = (v) => typeof v === 'string' && v.trim() !== '';
 const isTimestamp = (v) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
 const time = (iso) => Date.parse(iso);
-
-/** `YYYY-MM-DD` that exists in the calendar (2026-02-30 doesn't). */
-function isCalendarDate(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const [y, m, d] = value.split('-').map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
-}
 
 /**
  * Converts a backup from an older schema version to the current one.

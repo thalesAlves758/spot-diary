@@ -93,6 +93,18 @@ export function goBack(fallback = '/') {
 }
 
 /**
+ * Leaves the current screen for `path` (e.g. after saving a form, go to the place's detail).
+ * If the previous screen is `path`, goes back to it, so the detail isn't stacked twice;
+ * otherwise replaces the current entry with `path`. Query strings are ignored in the comparison.
+ */
+export async function returnTo(path) {
+  await idle;
+  const d = depth();
+  if (d > 0 && pathsByDepth[d - 1] === path.split('?')[0]) history.back();
+  else replace(path);
+}
+
+/**
  * Registers an open overlay. `onBack` is called if the user presses back while it is open.
  * Returns `release()`, to call when the overlay closes by itself (button, Esc, backdrop).
  */
@@ -132,6 +144,8 @@ function onPopState(event) {
 }
 
 let lastRenderedDepth = 0;
+// Path rendered at each history depth in this session (lost on reload; returnTo then replaces).
+const pathsByDepth = [];
 
 function parseHash() {
   const raw = location.hash.slice(1) || '/';
@@ -167,6 +181,8 @@ async function render() {
   cleanup = null;
   root.replaceChildren();
   lastRenderedDepth = depth();
+  pathsByDepth[lastRenderedDepth] = path;
+  pathsByDepth.length = lastRenderedDepth + 1;
   window.scrollTo(0, 0);
 
   const result = await screen.render(root, { params, query });
