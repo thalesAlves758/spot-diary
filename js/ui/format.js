@@ -21,6 +21,19 @@ export function formatDateTime(iso) {
     + `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+/**
+ * Address as display lines, only with the filled fields (no leftover separators):
+ * `["Rua X, 123 - apto 2", "Savassi, Belo Horizonte - MG"]`; only city and state → `["Belo Horizonte - MG"]`.
+ */
+export function formatAddress(address = {}) {
+  const join = (parts, sep) => parts.filter(Boolean).join(sep);
+  const street = address.street ?? '';
+  const number = address.number ? (street ? address.number : `Nº ${address.number}`) : '';
+  const line1 = join([join([street, number], ', '), address.complement], ' - ');
+  const line2 = join([address.neighborhood, join([address.city, address.state], ' - ')], ', ');
+  return [line1, line2].filter(Boolean);
+}
+
 /** 1 → "1 visita", 3 → "3 visitas" */
 export function plural(count, singular, pluralForm) {
   return `${count} ${count === 1 ? singular : pluralForm}`;

@@ -2,6 +2,7 @@
 import * as placesDb from '../db/places.js';
 import * as visitsDb from '../db/visits.js';
 import { ValidationError, NotFoundError } from './errors.js';
+import { placeSummary, compareVisitsNewestFirst } from './summary.js';
 
 /** Place types (RN02): stored `value`, displayed `label`, in display order. */
 export const PLACE_TYPES = [
@@ -137,6 +138,20 @@ export async function createPlace(data) {
   const { errors, value } = validatePlace(data, existing);
   if (Object.keys(errors).length) throw new ValidationError(errors);
   return placesDb.save({ ...value, status: STATUS.WANT_TO_GO, favorite: false });
+}
+
+/**
+ * Everything the detail screen shows (RF06): the place, its summary and its visits newest first
+ * (same date: last created first). `null` if the place doesn't exist.
+ */
+export async function getPlaceDetail(id) {
+  const [place, visits] = await Promise.all([placesDb.get(id), visitsDb.listByPlace(id)]);
+  if (!place) return null;
+  return {
+    place,
+    summary: placeSummary(place, visits),
+    visits: [...visits].sort(compareVisitsNewestFirst),
+  };
 }
 
 /** A place by ID, or `null` if it doesn't exist (deleted, or a bad link). */
