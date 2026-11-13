@@ -264,12 +264,12 @@ Todos os caminhos do app são relativos, então ele funciona dentro de uma subpa
 
 ### Atualizar o app publicado
 
-Sempre que **qualquer arquivo do app** mudar:
+O GitHub Pages publica a branch `main`. O trabalho acontece na `dev`, com uma branch por card, e chega à `main` numa release (o fluxo completo está no [CLAUDE.md](CLAUDE.md#git-workflow-and-subagents)).
 
-1. Aumente a versão do cache em [sw.js](sw.js) (ex.: `diario-v4` → `diario-v5`), no mesmo commit da mudança.
-2. Se criou um arquivo novo, inclua ele na lista `ASSETS` do mesmo arquivo.
+1. **Em cada card:** se criou um arquivo novo, inclua ele na lista `ASSETS` de [sw.js](sw.js). Não mexa na versão do cache.
+2. **Na release:** se algum arquivo do app mudou desde a última release, aumente a versão do cache em `sw.js` (ex.: `diario-v4` → `diario-v5`) num commit na `dev`. Depois, faça o merge da `dev` na `main` e o push.
 
-Sem isso, o navegador nem percebe que o `sw.js` mudou e continua servindo a versão antiga do cache, inclusive no app instalado.
+Sem a versão nova, o navegador nem percebe que o `sw.js` mudou e continua servindo a versão antiga do cache, inclusive no app instalado.
 
 ---
 
