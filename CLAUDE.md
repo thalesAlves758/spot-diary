@@ -53,9 +53,40 @@ Key invariants that span layers:
 
 ## Service worker gotchas
 
-- Cache is versioned (`diario-vN`); **bump the version whenever any app file changes** (in the same commit), not only when files are added. The SW is cache-first and the browser only installs a new SW when `sw.js` itself changes: editing `home.js` alone leaves every installed copy — including the dev browser — on the old files forever.
+- Cache is versioned (`diario-vN`). The SW is cache-first and the browser only installs a new SW when `sw.js` itself changes: editing `home.js` alone leaves every installed copy on the old files forever. So **any app change must reach `main` (what GitHub Pages serves) with a bumped version**, not only when files are added. With the git workflow below, card branches never touch `CACHE_VERSION` (parallel bumps would conflict); the bump is a single commit on `dev` right before it is merged into `main`. While developing, use DevTools → Application → Service workers → **Update on reload**.
 - With no build, the precache list is a hand-maintained `ASSETS` constant in `sw.js` — **every new file must be added there** or it breaks offline mode.
 - Never cache user data; it lives only in IndexedDB.
+
+## Git workflow and subagents
+
+Flow: `branch-por-card`. Each card is implemented on its own branch and merged into `dev` one at a time.
+
+**Branches**
+- `main` — stable; GitHub Pages publishes it. It only receives code from `dev`, and only when the user asks (a release). No card work is committed to it directly.
+- `dev` — integration branch. Cards branch off it and are merged back into it.
+- `card/<id>-<slug>` — one per card, created from an up-to-date `dev` (e.g. `card/CARD-028-ordenar-visitas`). Work without a card uses `fix/<slug>` or `docs/<slug>`.
+- Commit messages in pt-BR, as in the history: `feat: <o que mudou> (CARD-XXX)`, `fix: …`, `docs: …`.
+
+**When to delegate**
+- By default, one card at a time: implement it, report, and wait for the user to say "próximo".
+- Asking for subagents, or for a card that has `modelo_sugerido`, authorizes delegation: call the Agent tool (`general-purpose`) with `isolation: "worktree"` and `model` set to the card's `modelo_sugerido` or the model the user names. Asking to "implement the next wave" (or naming several cards) authorizes running them in parallel, in the background. Only parallelize cards of the same wave in `docs/cards/_index.md` that don't depend on each other and don't edit the same files (two cards that both change `js/ui/screens/home.js` run one after the other).
+- Without delegation, this session implements the card itself, still on a `card/…` branch.
+
+**Subagent rules** (the subagent starts with no context and can't ask the user anything, so put these in its prompt along with the card path):
+- Read this CLAUDE.md, the card, the RF/RN items it references in `docs/refinamento.md`, and the premissas in `docs/cards/_index.md`.
+- Create `card/<id>-<slug>` from `dev` inside its worktree, implement only what the card asks (its "Fora do escopo" is binding), and commit only on that branch. Never merge, rebase `dev`, push, or delete branches.
+- Don't touch `CACHE_VERSION`, but do add every new file to `ASSETS` in `sw.js`.
+- Don't change the card's `status` or the `_index.md` table; the orchestrator does that after merging, which avoids conflicts between parallel branches.
+- Nothing to install (no build, no dependencies). If it serves the app to test in headless Chrome, use a port of its own (e.g. 8000 + card number) so parallel agents don't collide.
+- If a decision belongs to the user (business rule, product choice, something the card doesn't define), leave that part out, finish the rest, and return the question.
+- Final report: branch and commits; files changed; each acceptance criterion and how it was met; tests run and results; deviations from the card and why; open questions.
+
+**Orchestrator (this session), per card**
+1. Before delegating, check that the `depende_de` cards are already merged into `dev`, and settle any open decision with the user.
+2. Review `git diff dev...card/<id>-<slug>` against the card. Fixes go back to the same subagent (SendMessage), which keeps committing on the same branch.
+3. Merge into `dev` one card at a time (`git merge --no-ff`). From the second card of a wave on, first merge `dev` into the card branch and retest. Resolve simple conflicts yourself; a conflict that changes behavior goes to the card's subagent or to the user.
+4. After the merge, set `status: done` (in the card and in `_index.md`) in a commit on `dev`, delete the card branch and its worktree, and tell the user what to validate.
+5. Don't push and don't touch `main` unless the user asks. A release is: bump `CACHE_VERSION` in a commit on `dev`, merge `dev` into `main`, push both.
 
 ## Constraints
 
