@@ -1,6 +1,6 @@
 import { transaction, request } from './index.js';
 
-// App key/value pairs: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort` (order of each home tab; not part of the backup).
+// App key/value pairs: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort` (order of each home tab), `theme` (not part of the backup).
 const STORE = 'meta';
 
 /** Value for a key, or `undefined` if it doesn't exist. */

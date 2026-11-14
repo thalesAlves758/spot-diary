@@ -11,6 +11,8 @@ import {
 import { parseBackup, importBackup, IMPORT_MODE } from '../../services/backup-import.js';
 import { eraseAllData } from '../../services/data-reset.js';
 import { ImportError } from '../../services/errors.js';
+import { THEMES, getTheme, setTheme } from '../../services/theme.js';
+import { applyTheme } from '../theme.js';
 import { getAppVersion } from '../../services/app-info.js';
 
 const places = (n) => plural(n, 'lugar', 'lugares');
@@ -24,12 +26,13 @@ async function refreshCounts() {
 }
 
 export async function render(root) {
-  const [lastExportAt, counts] = await Promise.all([getLastExportAt(), countData()]);
+  const [lastExportAt, counts, theme] = await Promise.all([getLastExportAt(), countData(), getTheme()]);
   countListeners = [];
 
   root.append(
     createHeader({ title: 'Configurações', back: true }),
     h('main', { class: 'page' },
+      buildSection('Aparência', buildThemeChoice(theme)),
       buildSection('Backup',
         buildExportPanel(lastExportAt, counts),
         buildImportPanel(),
@@ -46,6 +49,34 @@ function buildSection(title, ...content) {
     h('h2', { class: 'settings-section__title' }, title),
     ...content,
   );
+}
+
+// ---------------------------------------------------------------- Theme (CARD-030)
+
+const THEME_LABELS = { auto: 'Automático', light: 'Claro', dark: 'Escuro' };
+
+function buildThemeChoice(initial) {
+  let saved = initial;
+  const inputs = THEMES.map((value) => h('input', {
+    type: 'radio', name: 'theme', value, id: `theme-${value}`, class: 'choice__input', checked: value === initial,
+  }));
+
+  const group = h('div', { class: 'choice', role: 'radiogroup', 'aria-label': 'Tema' },
+    inputs.map((input) => [input, h('label', { for: input.id, class: 'choice__option' }, THEME_LABELS[input.value])]));
+
+  group.addEventListener('change', async (event) => {
+    const value = event.target.value;
+    try {
+      await setTheme(value);
+      saved = value;
+      applyTheme(value);
+    } catch (error) {
+      console.error(error);
+      showToast('Não foi possível salvar o tema.');
+      for (const input of inputs) input.checked = input.value === saved;
+    }
+  });
+  return group;
 }
 
 // ---------------------------------------------------------------- Export (CARD-016)
