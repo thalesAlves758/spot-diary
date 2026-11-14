@@ -514,7 +514,6 @@ select.field__input { appearance: auto; }
 
 /* ===== Sort row + panel (T1/T7, CARD-027) ===== */
 .sort-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
-.draw-btn { color: var(--color-primary-text); font-weight: 600; }
 .draw-card { padding: var(--space-1) 0; }
 .sort-row[hidden] { display: none; }
 .sort-btn {
@@ -531,6 +530,10 @@ select.field__input { appearance: auto; }
   cursor: pointer;
 }
 .sort-btn .icon { width: 18px; height: 18px; }
+/* Sort label shrinks with ellipsis; "Sortear" (CARD-033) keeps its size and stays on one line. */
+.sort-row > .sort-btn:first-child { min-width: 0; }
+.sort-row > .sort-btn:first-child > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sort-btn.draw-btn { flex: none; white-space: nowrap; color: var(--color-primary-text); font-weight: 600; }
 .sort-options { display: flex; flex-direction: column; gap: var(--space-2); }
 .sort-option { width: 100%; border-radius: 8px; }
 
