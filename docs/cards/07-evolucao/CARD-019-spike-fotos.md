@@ -7,12 +7,14 @@ camadas: [front, banco]
 complexidade: P
 prioridade: depois
 incerteza: media
-status: todo
+status: descartado
 requisitos: [RF15]
 depende_de: [CARD-011]
 ---
 
 # CARD-019 — Spike: compressão e armazenamento de fotos
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Fotos foram tiradas do MVP porque pesam no armazenamento e no backup. Antes de implementar, medir no celular real.

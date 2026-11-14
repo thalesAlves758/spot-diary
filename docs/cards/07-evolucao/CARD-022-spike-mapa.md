@@ -7,12 +7,14 @@ camadas: [front, integracao]
 complexidade: P
 prioridade: depois
 incerteza: alta
-status: todo
+status: descartado
 requisitos: [RF16]
 depende_de: [CARD-005]
 ---
 
 # CARD-022 — Spike: mapa e busca de lugares
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Buscar o lugar num mapa em vez de digitar tudo. Há custo e dependência de internet a avaliar.

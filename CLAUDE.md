@@ -9,7 +9,7 @@ Diário de Rolê is a personal, offline-first PWA for tracking bars/restaurants 
 - [docs/refinamento.md](docs/refinamento.md) — source of truth: requirements (RF01–RF19), business rules (RN01–RN16), screens (T1–T7), data model, backup format.
 - [docs/cards/_index.md](docs/cards/_index.md) — 27 task cards with dependencies, suggested execution order (waves), and requirement traceability. Each card in `docs/cards/<NN-contexto>/CARD-XXX-*.md` has YAML frontmatter (`status: todo|...`, `depende_de`, `requisitos`) and acceptance criteria.
 
-When implementing a card, read it plus the RF/RN items it references, respect `depende_de`, and update its `status` (in the card and in the `_index.md` table) when done. Cards marked `prioridade: depois` (photos, map, login/sync, React) are out of MVP scope — don't build them early.
+When implementing a card, read it plus the RF/RN items it references, respect `depende_de`, and update its `status` (in the card and in the `_index.md` table) when done. Cards with `status: descartado` (CARD-019 to CARD-025: photos, map, login/sync, React) were dropped on 2026-11-13 because they don't fit a local-only app — don't build them. Features that need a server (login, sync, sharing) belong to a possible new project, not this one.
 
 **Language:** all code is in English: identifiers, file names, comments, routes, and the data model (stores `places`/`visits`/`meta`, fields like `name`, `type`, `placeId`, `rating`, `wouldReturn`, status values `want_to_go`/`been_there`, type codes like `bar`/`restaurant`, backup JSON keys). Only user-facing UI text is Brazilian Portuguese. Docs (refinamento, cards) are written in Portuguese but reference code names in English; the code/label mapping is in the data model section of the refinamento.
 
@@ -34,7 +34,7 @@ js/services/         pure business rules, no DOM
 js/ui/screens/, js/ui/components/
 ```
 
-Strict layering — this is what makes the future React migration (CARD-025) a UI-only rewrite:
+Strict layering — business rules stay testable in `services/` and the UI can change without touching them:
 - `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.

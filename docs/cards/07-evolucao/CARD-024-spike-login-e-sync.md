@@ -7,12 +7,14 @@ camadas: [back, front, integracao]
 complexidade: P
 prioridade: depois
 incerteza: alta
-status: todo
+status: descartado
 requisitos: [RF17]
 depende_de: [CARD-017]
 ---
 
 # CARD-024 — Spike: login e sincronização
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Usar o app em mais de um aparelho exige conta e sincronização, o que muda a regra de "nenhum dado sai do aparelho".

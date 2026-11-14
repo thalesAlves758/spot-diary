@@ -4,7 +4,7 @@ PWA pessoal para guardar os bares e restaurantes que você quer conhecer e o his
 
 O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista **Quero ir**, que vira **Já fui** quando a primeira visita é registrada. Cada visita guarda a data, a nota, se você voltaria e um comentário.
 
-**Status:** MVP completo (20 cards, incluindo a ordenação das listas, adicionada depois da primeira entrega). Fotos, mapa, login e migração para React ficaram para depois. Veja o [Roadmap](#roadmap).
+**Status:** MVP completo (20 cards, incluindo a ordenação das listas, adicionada depois da primeira entrega). Fotos, mapa, login e migração para React foram descartados: o app continua 100% local. Veja o [Roadmap](#roadmap).
 
 ---
 
@@ -288,21 +288,23 @@ Sem a versão nova, o navegador nem percebe que o `sw.js` mudou e continua servi
 
 - Os dados são só deste aparelho e deste navegador, sem sincronização.
 - O alvo é o Chrome no Android. O iPhone não é garantido: o Safari pode apagar os dados de um PWA que não foi instalado.
-- Não há fotos, mapa nem busca de endereço; esses itens estão no roadmap.
+- Não há fotos, mapa nem busca de endereço. Esses itens foram descartados (veja o [Roadmap](#roadmap)).
 - Os testes de ponta a ponta usados no desenvolvimento rodaram no Chrome sem interface (headless) e **ainda não estão versionados no repositório**.
 
 ---
 
 ## Roadmap
 
-Itens planejados para depois do MVP (cards em [docs/cards/07-evolucao](docs/cards/07-evolucao)):
+Não há evoluções planejadas. Os itens previstos para depois do MVP foram **descartados em 13/11/2026**, porque esbarram nos limites de um app 100% local, sem servidor e sem chamadas externas. Os cards continuam em [docs/cards/07-evolucao](docs/cards/07-evolucao), como histórico.
 
-| Card | Item |
-| --- | --- |
-| CARD-019 / 020 / 021 | Fotos nas visitas, comprimidas, e backup em `.zip` com as fotos |
-| CARD-022 / 023 | Mapa e busca de lugares para preencher nome e endereço |
-| CARD-024 | Login e sincronização entre aparelhos (spike) |
-| CARD-025 | Plano de migração da interface para React (spike) |
+| Card | Item | Por que foi descartado |
+| --- | --- | --- |
+| CARD-019 / 020 / 021 | Fotos nas visitas e backup em `.zip` | Pesam no armazenamento do celular e no backup |
+| CARD-022 / 023 | Mapa e busca de lugares | Dependem de chamadas externas e, no Google Places, de chave e custo |
+| CARD-024 | Login e sincronização entre aparelhos | Exigem servidor |
+| CARD-025 | Migração da interface para React | Etapa de build e dependências, com pouco ganho |
+
+Login, listas compartilhadas e colaboração podem virar um projeto novo, com servidor desde o início.
 
 ---
 
