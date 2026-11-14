@@ -4,7 +4,7 @@ PWA pessoal para guardar os bares e restaurantes que você quer conhecer e o his
 
 O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista **Quero ir**, que vira **Já fui** quando a primeira visita é registrada. Cada visita guarda a data, a nota, se você voltaria e um comentário.
 
-**Status:** MVP completo (20 cards, incluindo a ordenação das listas, adicionada depois da primeira entrega). Fotos, mapa, login e migração para React foram descartados: o app continua 100% local. Veja o [Roadmap](#roadmap).
+**Status:** versão **1.2.0** publicada (o histórico está no [CHANGELOG](CHANGELOG.md)). O MVP (1.0) foi completado com Configurações e tema escuro (1.1) e com atalhos para sair de casa (1.2). Registros mais ricos (1.3) e estatísticas (1.4) estão planejados. Fotos, mapa, login e migração para React foram descartados: o app continua 100% local. Veja o [Roadmap](#roadmap).
 
 ---
 
@@ -31,6 +31,8 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 - Tags livres em chips. Enquanto você digita, o app sugere as tags que já existem e reaproveita a grafia delas: com "BH" cadastrada, digitar "bh" usa "BH".
 - Edição e exclusão. Excluir um lugar apaga também as visitas dele, depois de uma confirmação que diz quantas visitas vão junto.
 - Favoritos: um coração no card e no detalhe.
+- **Abrir no Maps:** no detalhe de um lugar com endereço, abre a busca do lugar no Google Maps (o app do Maps, se estiver instalado).
+- **Compartilhar lugar:** manda para outro app (WhatsApp, por exemplo) um texto com nome, tipo, nota, endereço e link do Maps. No computador, o texto é copiado.
 
 **Visitas**
 - Registro com data, nota de 1 a 5 estrelas, "voltaria?" (sim ou não) e comentário opcional.
@@ -44,15 +46,20 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 - Filtros por tipo, tags e "só favoritos". Na aba "Já fui" há também "voltaria = sim" e nota mínima.
 - Ordenação por aba, na linha "Ordenar: … ▾" acima da lista. Em "Quero ir": adicionados mais recentes, adicionados mais antigos e A–Z. Em "Já fui": última visita mais recente, última visita mais antiga, A–Z, maior nota e mais visitados.
 - A aba, a busca e os filtros ficam no endereço da página, então continuam aplicados quando você abre um lugar e volta. A ordem de cada aba fica salva no aparelho e continua valendo quando o app é reaberto.
+- **Sortear:** o botão "Sortear", ao lado da ordenação, escolhe um lugar ao acaso entre os que estão na lista (com busca e filtros). O painel "Sorteado!" tem "Sortear de novo" e "Ver lugar".
 
-**Backup**
-- **Exportar** baixa um arquivo `.json` com todos os lugares e visitas.
-- **Importar** um backup, escolhendo entre **mesclar** com os dados atuais ou **substituir tudo**. O arquivo é validado inteiro antes de gravar, e qualquer erro deixa os dados como estavam.
+**Backup** (em Configurações)
+- **Baixar arquivo** salva um `.json` com todos os lugares e visitas.
+- **Compartilhar** abre o menu do Android para mandar o backup direto ao Drive, WhatsApp ou e-mail, como `.json.txt` (o Chrome do Android não compartilha `.json`). O botão só aparece onde o navegador consegue compartilhar arquivos.
+- **Importar** um backup (`.json` ou `.json.txt`), escolhendo entre **mesclar** com os dados atuais ou **substituir tudo**. O arquivo é validado inteiro antes de gravar, e qualquer erro deixa os dados como estavam.
 - **Lembrete** na tela inicial quando o último backup tem mais de 30 dias.
 - **Apagar todos os dados**, com confirmação em dois passos.
 
 **App**
+- **Configurações**, pela engrenagem da tela inicial: Aparência, Backup, Dados e Sobre (versão do app).
+- **Tema** Automático (segue o celular), Claro ou Escuro, aplicado desde a abertura, sem piscar.
 - Instalável na tela inicial do Android, abrindo em tela cheia, sem a barra do navegador.
+- **Atalhos do ícone:** segurando o ícone do app aparecem "Novo" (cadastrar lugar) e "Sortear" (sorteia entre todos os lugares de "Quero ir").
 - Funciona offline depois da primeira vez que é aberto.
 - Avisa quando há uma versão nova ("Nova versão disponível — Recarregar").
 
@@ -62,15 +69,15 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 
 | Tela | Rota | O que faz |
 | --- | --- | --- |
-| **Início** | `#/` | Abas "Quero ir" e "Já fui", busca, filtros, ordenação, lembrete de backup e botão "Novo" |
+| **Início** | `#/` | Abas "Quero ir" e "Já fui", busca, filtros, ordenação, sorteio, lembrete de backup e botão "Novo". Com `?draw=1` (atalho "Sortear"), já abre o sorteio |
 | **Novo lugar** | `#/place/new` | Cadastro de lugar. Com `?beenThere=1`, vindo do "Novo" da aba "Já fui", segue direto para o registro da visita |
-| **Detalhe do lugar** | `#/place/:id` | Dados do lugar, resumo das visitas, histórico e ações |
+| **Detalhe do lugar** | `#/place/:id` | Dados do lugar, "Abrir no Maps", compartilhar, resumo das visitas, histórico e ações |
 | **Editar lugar** | `#/place/:id/edit` | Mesmo formulário do cadastro, com "Excluir lugar" |
 | **Registrar visita** | `#/place/:id/visit/new` | Data, nota, "voltaria?" e comentário |
 | **Editar visita** | `#/visit/:id/edit` | Mesmo formulário do registro, com "Excluir visita" |
-| **Configurações** | `#/settings` | Preferências, backup, apagar dados e versão |
+| **Configurações** | `#/settings` | Tema, backup (baixar, compartilhar, importar), apagar dados e versão. O antigo `#/backup` redireciona para cá |
 
-Os filtros e a ordenação abrem em **painéis inferiores** sobre a tela inicial. Eles não têm rota própria.
+Os filtros, a ordenação e o sorteio abrem em **painéis inferiores** sobre a tela inicial. Eles não têm rota própria.
 
 **Fluxos principais**
 
@@ -98,7 +105,7 @@ flowchart LR
 
 ## Regras de negócio
 
-As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN16). As principais:
+As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN30; as RN23 a RN30 são da 1.3 e da 1.4, ainda não implementadas). As principais:
 
 - **Nome e tipo são obrigatórios.** Não pode haver dois lugares com o mesmo nome, sem diferenciar maiúsculas e espaços nas pontas.
 - **Tags** não diferenciam maiúsculas ("BH" e "bh" são a mesma tag).
@@ -115,6 +122,10 @@ As regras completas estão no [refinamento](docs/refinamento.md) (RN01 a RN16). 
 - **Importar "mesclar":** lugares e visitas são casados pelo ID, e em conflito fica a versão editada mais recentemente.
   - Um lugar do arquivo com o nome de outro já existente, mas com outro ID, não é importado. As visitas dele também não, e ele aparece listado no resultado.
 - **Lembrete de backup:** aparece com mais de 30 dias sem exportar, ou se nunca houve backup e já existe pelo menos um lugar.
+- **Backup compartilhado:** a data do último backup só é registrada quando o envio termina; fechar o menu de compartilhar não muda nada.
+- **Tema:** fica salvo no aparelho, não entra no backup e não é apagado por "Apagar todos os dados".
+- **Sorteio:** cada lugar da lista tem a mesma chance, "Sortear de novo" nunca repete o lugar anterior (com dois ou mais), e nada é gravado.
+- **Versão:** `MAIOR.MENOR.CORREÇÃO`. Sobe o MENOR numa release com funcionalidade, a CORREÇÃO numa só de correções e o MAIOR só quando a compatibilidade dos dados quebra.
 
 ---
 
@@ -134,18 +145,19 @@ ui/  ──►  services/  ──►  db/  ──►  IndexedDB
 | `js/services/` | Regras de negócio em funções puras: validação, status, média, busca, filtros, import e export | Tocar no DOM |
 | `js/ui/` | Telas e componentes. Chama apenas `services/` | Acessar `db/` ou ter regra de negócio nos *handlers* |
 
-Essa separação existe para a futura migração para React reescrever só a pasta `ui/`, reaproveitando `db/` e `services/` como estão.
+Essa separação deixa as regras testáveis no Node (`node --test`), sem navegador, e permite mudar a interface sem tocar nelas.
 
 ### Estrutura de pastas
 
 ```
-index.html                 página única
-manifest.webmanifest       manifest do PWA (nome, ícones, standalone)
+index.html                 página única (aplica o tema salvo antes de desenhar a tela)
+manifest.webmanifest       manifest do PWA (nome, ícones, standalone, atalhos)
 sw.js                      service worker: cache offline e atualização
 css/app.css                estilo único, com variáveis (cores, espaços, fontes)
 icons/                     ícones do app (192, 512 e maskable)
 js/
-  app.js                   ponto de entrada: abre o banco, registra o SW e as rotas
+  version.js               versão do app (script clássico, lido pela página e pelo SW)
+  app.js                   ponto de entrada: abre o banco, aplica o tema, registra o SW e as rotas
   router.js                roteador por hash, histórico, modais e "voltar"
   sw-register.js           registro do service worker e aviso de versão nova
   db/
@@ -157,17 +169,26 @@ js/
     places.js              lugares: validação, tags, CRUD, favorito, detalhe
     visits.js              visitas: validação (RN05), registro (muda o status), edição
     summary.js             média, última visita e "voltaria"
-    lists.js               listas "Quero ir" / "Já fui" e ordem salva de cada aba
+    lists.js               listas "Quero ir" / "Já fui", ordem salva de cada aba e sorteio
     sorting.js             opções de ordenação e comparadores
     filters.js             busca por nome e filtros
-    backup.js              export e lembrete de backup
+    backup.js              export, nomes do arquivo baixado e do compartilhado, lembrete de backup
     backup-import.js       validação e import (mesclar ou substituir)
     data-reset.js          apagar todos os dados
+    theme.js               tema salvo (auto, claro, escuro)
+    app-info.js            versão do app para a interface
     dates.js · errors.js
+    *.test.js              testes unitários, ao lado de cada módulo
   ui/
     screens/               home, place-form, place-detail, visit-form, settings
     components/            cabeçalho, modal, painel inferior, toast, estrelas, tags…
-    dom.js · icons.js · format.js
+    theme.js               aplica o tema na página e na barra do sistema
+    format.js              formatação pt-BR, link do Maps e texto do compartilhar lugar
+    dom.js · icons.js
+tests/                     testes do service worker (versão e ASSETS)
+package.json               só diz ao Node que os .js são ES modules (sem dependências)
+.github/workflows/         workflow "Testes" (node --test a cada push)
+CHANGELOG.md               o que mudou em cada versão
 docs/                      refinamento e cards
 ```
 
@@ -179,7 +200,7 @@ Duas coleções, **places** e **visits**, ligadas por `placeId` (um lugar tem v�
 | --- | --- | --- | --- |
 | `places` | `id` (UUID) | `name`, `type`, `tags` (multiEntry), `status` | `name`, `type`, `status`, `tags`, `address`, `favorite`, `createdAt`, `updatedAt` |
 | `visits` | `id` (UUID) | `placeId`, `date` | `placeId`, `date` (`YYYY-MM-DD`), `rating`, `wouldReturn`, `comment`, `createdAt`, `updatedAt` |
-| `meta` | `key` | — | `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort` (ordem de cada aba) |
+| `meta` | `key` | — | `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort` (ordem de cada aba), `theme` |
 
 - O código e os dados gravados são em inglês: `status` é `want_to_go` ou `been_there`, e os tipos são `bar`, `restaurant`, `pizzeria`… Só os textos da tela são em português. A tabela que liga cada código ao seu rótulo está no [refinamento](docs/refinamento.md#modelo-de-dados).
 - A média e a última visita são **calculadas** a partir das visitas, não gravadas.
@@ -198,12 +219,12 @@ Duas coleções, **places** e **visits**, ligadas por `placeId` (um lugar tem v�
 }
 ```
 
-O arquivo se chama `diario-de-role-AAAA-MM-DD.json`, com a data local do aparelho.
+O arquivo se chama `diario-de-role-AAAA-MM-DD.json`, com a data local do aparelho. O compartilhado tem o mesmo conteúdo e se chama `diario-de-role-AAAA-MM-DD.json.txt`.
 
 ### Offline e atualização
 
 - O service worker guarda no cache, na instalação, todos os arquivos do app (a lista `ASSETS`, mantida à mão) e responde primeiro do cache.
-- O cache tem a versão do app no nome (`diario-1.0.0`), vinda de `js/version.js`. Quando ela muda, a versão nova fica esperando, e o app mostra o aviso "Nova versão disponível". Ao tocar em "Recarregar", a versão nova assume e os caches antigos são apagados.
+- O cache tem a versão do app no nome (por exemplo, `diario-1.2.0`), vinda de `js/version.js`. Quando ela muda, a versão nova fica esperando, e o app mostra o aviso "Nova versão disponível". Ao tocar em "Recarregar", a versão nova assume e os caches antigos são apagados.
 - O app procura atualização também quando volta para a tela, porque um app instalado pode ficar dias aberto em segundo plano.
 - O service worker nunca guarda dados do usuário: eles ficam só no IndexedDB.
 
@@ -216,13 +237,15 @@ O arquivo se chama `diario-de-role-AAAA-MM-DD.json`, com a data local do aparelh
 | **Linguagens** | HTML, CSS e JavaScript puro, com ES modules |
 | **Build** | Nenhum: sem bundler, sem transpilação, sem dependências npm |
 | **Armazenamento** | IndexedDB (API nativa) e pedido de armazenamento persistente (`navigator.storage.persist()`) |
-| **PWA** | Web App Manifest e Service Worker com Cache Storage |
+| **PWA** | Web App Manifest (com atalhos) e Service Worker com Cache Storage |
+| **Compartilhar** | Web Share API (`navigator.share`), com cópia para a área de transferência como alternativa |
+| **Testes** | `node --test` (executor nativo do Node, sem dependências), no GitHub Actions a cada push |
 | **Navegação** | Roteador próprio, por hash e History API |
 | **Interface** | Componentes próprios: `<dialog>` para modais e painel inferior, ícones SVG embutidos no código e CSS com variáveis |
 | **Alvo** | Chrome no Android, mobile-first: largura de 360 px e áreas de toque de pelo menos 44 px |
 | **Hospedagem** | Qualquer hospedagem estática com HTTPS (GitHub Pages, Netlify, Cloudflare Pages) |
 
-Os ícones e fontes vêm de dentro do app, e não há nenhuma chamada a servidores externos.
+Os ícones e fontes vêm de dentro do app, e não há nenhuma chamada a servidores externos. "Abrir no Maps" e "Compartilhar" só entregam dados a outro app, quando você toca.
 
 ---
 
@@ -233,6 +256,8 @@ Não há etapa de build, mas ES modules não funcionam abrindo o arquivo direto 
 - **VS Code:** extensão Live Server → "Open with Live Server".
 - **Python:** `python -m http.server 8000` e abra http://localhost:8000.
 - **Node:** `npx serve .`
+
+**Testes:** `node --test js tests` (Node 22 ou mais novo), a partir da raiz. Passar `js tests` evita que o Node ache testes em pastas de trabalho temporárias.
 
 O `localhost` conta como contexto seguro, então o service worker também funciona localmente.
 
@@ -277,10 +302,10 @@ A versão fica só no `js/version.js`, e o `sw.js` monta o nome do cache a parti
 
 - **Nada sai do aparelho:** não há servidor, conta, analytics nem rastreamento.
 - **O risco principal é perder os dados**, porque eles vivem só no navegador. Limpar os dados do site, reinstalar ou trocar de celular apaga tudo. As proteções são:
-  - **Backup em JSON**, com o lembrete a cada 30 dias. Guarde o arquivo fora do celular.
+  - **Backup em JSON**, com o lembrete a cada 30 dias. Use "Compartilhar" para mandar direto ao Drive, ou guarde o arquivo baixado fora do celular.
   - **Armazenamento persistente**, pedido a cada abertura do app. O Chrome costuma aceitar depois que o app é instalado.
   - **Transações únicas** nas gravações que mexem em mais de uma coisa: uma falha no meio não deixa os dados pela metade.
-- **Para recomeçar do zero**, use **Backup → Apagar todos os dados**. Não dá para desfazer; para voltar atrás, só importando um backup.
+- **Para recomeçar do zero**, use **Configurações → Dados → Apagar todos os dados**. Não dá para desfazer; para voltar atrás, só importando um backup.
 
 ---
 
@@ -295,7 +320,16 @@ A versão fica só no `js/version.js`, e o `sw.js` monta o nome do cache a parti
 
 ## Roadmap
 
-Não há evoluções planejadas. Os itens previstos para depois do MVP foram **descartados em 13/11/2026**, porque esbarram nos limites de um app 100% local, sem servidor e sem chamadas externas. Os cards continuam em [docs/cards/07-evolucao](docs/cards/07-evolucao), como histórico.
+A evolução 1.1–1.4 continua 100% local e sai em uma release por grupo de cards ([quadro completo](docs/cards/_index.md)):
+
+| Versão | Tema | Cards | Situação |
+| --- | --- | --- | --- |
+| 1.1.0 | Configurações: tela de Configurações, tema escuro, backup pelo compartilhar, testes e versão única | CARD-028 a 031 | Publicada |
+| 1.2.0 | Sair de casa: abrir no Maps, compartilhar lugar, sortear e atalhos do ícone | CARD-032 e 033 | Publicada |
+| 1.3.0 | Registros mais ricos: faixa de preço, quem indicou, link, com quem foi, pedidos e desfazer exclusão (esquema v2 e backup versão 2) | CARD-034 a 038 | Planejada |
+| 1.4.0 | Olhar para trás: estatísticas e tags fixadas na tela inicial | CARD-039 e 040 | Planejada |
+
+**Descartados.** Os itens previstos antes para depois do MVP foram **descartados em 13/11/2026**, porque esbarram nos limites de um app 100% local, sem servidor e sem chamadas externas. Os cards continuam em [docs/cards/07-evolucao](docs/cards/07-evolucao), como histórico.
 
 | Card | Item | Por que foi descartado |
 | --- | --- | --- |
@@ -311,5 +345,6 @@ Login, listas compartilhadas e colaboração podem virar um projeto novo, com se
 ## Documentação do projeto
 
 - [docs/refinamento.md](docs/refinamento.md): visão, escopo, requisitos (RF01–RF33), regras de negócio (RN01–RN30), telas, modelo de dados e riscos. É a fonte de verdade do produto.
-- [docs/cards/_index.md](docs/cards/_index.md): os 27 cards, com dependências, ondas de execução, status e a ligação de cada requisito aos cards.
-- [CLAUDE.md](CLAUDE.md): convenções técnicas para quem mexe no código (camadas, navegação, service worker).
+- [docs/cards/_index.md](docs/cards/_index.md): os 40 cards, com dependências, ondas de execução, status e a ligação de cada requisito aos cards.
+- [CHANGELOG.md](CHANGELOG.md): o que mudou em cada versão publicada.
+- [CLAUDE.md](CLAUDE.md): convenções técnicas para quem mexe no código (camadas, navegação, service worker, testes, fluxo de git e releases).
