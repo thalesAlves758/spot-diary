@@ -65,6 +65,7 @@ Na seção Backup de Configurações, ter dois botões: "Baixar arquivo" (o comp
 
 ## Pendências
 - [CARD-030 — Tema escuro](CARD-030-tema-escuro.md). Os dois cards editam `js/ui/screens/settings.js`, por isso rodam em sequência.
+- **Decidido em 14/11/2026 pelo usuário: opção A** (`.json.txt`, `text/plain`; o import aceita `.txt`; RN18 já ajustada no refinamento). Histórico da decisão:
 - **Decisão antes de delegar (orquestradora com o usuário): o tipo do arquivo compartilhado.** O Chrome para Android só compartilha arquivos de uma lista de tipos permitidos, e `.json` / `application/json` provavelmente não está nela; nesse caso, `canShare` devolve `false` e o botão nunca aparece. Antes de delegar, confirme no celular, por exemplo com um teste rápido de `navigator.canShare` no console via `chrome://inspect`. Se `.json` não funcionar, decida:
   - **A (recomendada):** compartilhar como texto, `diario-de-role-AAAA-MM-DD.json.txt` (`text/plain`), com o mesmo conteúdo JSON. O import passa a aceitar `.txt`. Isso ajusta a RN18 (o nome do arquivo compartilhado muda) e precisa ser registrado no refinamento.
   - **B:** manter só o `.json`. Se o navegador não aceitar, o botão não aparece e a funcionalidade fica sem efeito no Android.

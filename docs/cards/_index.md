@@ -301,7 +301,7 @@ A seta 027 → 028 só indica a ordem: o CARD-028 parte do MVP pronto.
 ## Pendências que não são cards
 
 - **Tag `v1.0.0`:** a orquestradora a cria na `main` atual antes de fazer o merge do CARD-028, como manda o refinamento. O push da tag acontece quando o usuário pedir push.
-- **Tipo do arquivo compartilhado (CARD-031):** confirmar no celular se o Chrome Android compartilha `.json`. Se não compartilhar, decidir entre `.json.txt` (recomendado) e manter só o `.json`, antes de delegar.
+- **Tipo do arquivo compartilhado (CARD-031):** resolvido em 14/11/2026: opção A, `.json.txt` (`text/plain`), e o import aceita `.txt`.
 - **Node local (opcional):** sem Node na máquina, os subagentes não conseguem rodar `node --test`, e os testes só rodam no GitHub Actions depois do push da `dev`. Instalar o Node (`winget install OpenJS.NodeJS.LTS`) permite rodar os testes antes do merge.
 - **Releases:** ao fim de cada grupo de ondas (v1.1 a v1.4), quando o usuário pedir.
 
