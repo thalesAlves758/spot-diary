@@ -7,12 +7,14 @@ camadas: [front]
 complexidade: P
 prioridade: depois
 incerteza: media
-status: todo
+status: descartado
 requisitos: [Escopo-depois-React]
 depende_de: [CARD-015, CARD-018]
 ---
 
 # CARD-025 — Spike: plano de migração da interface para React
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 A arquitetura em camadas foi pensada para isso: `db/` e `services/` ficam, só `ui/` é reescrita. Migrar tudo passa de 1 dia, então primeiro vem o plano.

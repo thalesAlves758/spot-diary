@@ -1,13 +1,12 @@
 # Cards — Diário de Rolê
 
-**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)). Atualizado em 08/11/2026 com o RF18 (apagar todos os dados → CARD-026) e com o RF19 / RN13–RN16 (ordenação das listas → CARD-027).
+**Fonte:** [refinamento.md](../refinamento.md), refinamento de 07/11/2026 ([versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)). Atualizado em 08/11/2026 com o RF18 (apagar todos os dados → CARD-026) e com o RF19 / RN13–RN16 (ordenação das listas → CARD-027). Atualizado em 13/11/2026: os cards de evolução (CARD-019 a CARD-025) foram descartados.
 
 ## Resumo
 
-- **Total:** 27 cards — 20 do MVP e 7 para depois.
-- **Complexidade (todos):** P 12 · M 15 · G 0.
-- **Complexidade (MVP):** P 8 · M 12.
-- **Incerteza alta:** CARD-022, CARD-024 (spikes de evolução). **Incerteza média:** CARD-003, CARD-017, CARD-019, CARD-020, CARD-021, CARD-023, CARD-025.
+- **Total:** 27 cards. Os 20 do MVP estão `done`; os 7 de evolução estão `descartado`.
+- **Complexidade (MVP):** P 8 · M 12 · G 0.
+- **Descartados em 13/11/2026:** CARD-019 a CARD-025 (fotos, mapa, login/sync e React). O app continua 100% local, e esses itens esbarram nesse limite; o motivo de cada um está no [refinamento](../refinamento.md#escopo). Os arquivos ficam como histórico e não devem ser implementados.
 
 ## Quadro
 
@@ -31,13 +30,13 @@
 | [CARD-016](06-backup/CARD-016-exportar-backup.md) | Exportar backup | backup | feature | P | mvp | baixa | done | 002, 004 |
 | [CARD-017](06-backup/CARD-017-importar-backup.md) | Importar backup (substituir ou mesclar) | backup | feature | M | mvp | media | done | 016 |
 | [CARD-018](06-backup/CARD-018-lembrete-de-backup.md) | Lembrete de backup | backup | feature | P | mvp | baixa | done | 008, 016 |
-| [CARD-019](07-evolucao/CARD-019-spike-fotos.md) | Spike: compressão e armazenamento de fotos | evolucao | spike | P | depois | media | todo | 011 |
-| [CARD-020](07-evolucao/CARD-020-fotos-na-visita.md) | Fotos na visita | evolucao | feature | M | depois | media | todo | 019 |
-| [CARD-021](07-evolucao/CARD-021-backup-zip-com-fotos.md) | Backup em .zip com fotos | evolucao | feature | M | depois | media | todo | 017, 020 |
-| [CARD-022](07-evolucao/CARD-022-spike-mapa.md) | Spike: mapa e busca de lugares | evolucao | spike | P | depois | alta | todo | 005 |
-| [CARD-023](07-evolucao/CARD-023-busca-de-lugar-no-mapa.md) | Busca de lugar no mapa | evolucao | integracao | M | depois | media | todo | 022 |
-| [CARD-024](07-evolucao/CARD-024-spike-login-e-sync.md) | Spike: login e sincronização | evolucao | spike | P | depois | alta | todo | 017 |
-| [CARD-025](07-evolucao/CARD-025-spike-migracao-react.md) | Spike: plano de migração da interface para React | evolucao | spike | P | depois | media | todo | 015, 018 |
+| [CARD-019](07-evolucao/CARD-019-spike-fotos.md) | Spike: compressão e armazenamento de fotos | evolucao | spike | P | depois | media | descartado | 011 |
+| [CARD-020](07-evolucao/CARD-020-fotos-na-visita.md) | Fotos na visita | evolucao | feature | M | depois | media | descartado | 019 |
+| [CARD-021](07-evolucao/CARD-021-backup-zip-com-fotos.md) | Backup em .zip com fotos | evolucao | feature | M | depois | media | descartado | 017, 020 |
+| [CARD-022](07-evolucao/CARD-022-spike-mapa.md) | Spike: mapa e busca de lugares | evolucao | spike | P | depois | alta | descartado | 005 |
+| [CARD-023](07-evolucao/CARD-023-busca-de-lugar-no-mapa.md) | Busca de lugar no mapa | evolucao | integracao | M | depois | media | descartado | 022 |
+| [CARD-024](07-evolucao/CARD-024-spike-login-e-sync.md) | Spike: login e sincronização | evolucao | spike | P | depois | alta | descartado | 017 |
+| [CARD-025](07-evolucao/CARD-025-spike-migracao-react.md) | Spike: plano de migração da interface para React | evolucao | spike | P | depois | media | descartado | 015, 018 |
 | [CARD-026](06-backup/CARD-026-apagar-todos-os-dados.md) | Apagar todos os dados | backup | feature | P | mvp | baixa | done | 016 |
 | [CARD-027](05-favoritos-e-filtros/CARD-027-ordenacao-das-listas.md) | Ordenação das listas | descoberta | feature | M | mvp | baixa | done | 008, 015 |
 
@@ -55,15 +54,11 @@ Cards da mesma onda podem rodar em paralelo.
 6. CARD-012 (Editar e excluir visita), CARD-013 (Botão "Novo" na aba "Já fui"), CARD-015 (Filtros (tipo, tags, favoritos, voltaria, nota mínima))
 7. CARD-027 (Ordenação das listas), incluído depois da entrega do MVP
 
-**Depois** (após o MVP rodando)
-
-1. CARD-019 (Spike: compressão e armazenamento de fotos), CARD-022 (Spike: mapa e busca de lugares), CARD-024 (Spike: login e sincronização), CARD-025 (Spike: plano de migração da interface para React)
-2. CARD-020 (Fotos na visita), CARD-023 (Busca de lugar no mapa)
-3. CARD-021 (Backup em .zip com fotos)
+**Evolução:** não há ondas. CARD-019 a CARD-025 foram descartados em 13/11/2026.
 
 ## Grafo de dependências
 
-Cards tracejados são de prioridade "depois".
+Cards tracejados foram descartados.
 
 ```mermaid
 flowchart LR
@@ -132,8 +127,8 @@ flowchart LR
     C016 --> C026
     C008 --> C027
     C015 --> C027
-    classDef depois stroke-dasharray: 5 5
-    class C019,C020,C021,C022,C023,C024,C025 depois
+    classDef descartado stroke-dasharray: 5 5
+    class C019,C020,C021,C022,C023,C024,C025 descartado
 ```
 
 ## Rastreabilidade
@@ -151,12 +146,12 @@ flowchart LR
 | RF09 | CARD-009 |
 | RF10 | CARD-015 |
 | RF11 | CARD-006 |
-| RF12 | CARD-016, CARD-021 |
-| RF13 | CARD-017, CARD-021 |
+| RF12 | CARD-016 (CARD-021 descartado) |
+| RF13 | CARD-017 (CARD-021 descartado) |
 | RF14 | CARD-018 |
-| RF15 | CARD-019, CARD-020, CARD-021 |
-| RF16 | CARD-022, CARD-023 |
-| RF17 | CARD-024 |
+| RF15 | Descartado (CARD-019, CARD-020, CARD-021) |
+| RF16 | Descartado (CARD-022, CARD-023) |
+| RF17 | Descartado (CARD-024) |
 | RF18 | CARD-026 |
 | RF19 | CARD-027 |
 | RN01 | CARD-005 |
@@ -183,7 +178,7 @@ flowchart LR
 | RNF Privacidade / LGPD | CARD-001 |
 | RNF Usabilidade (mobile-first) | CARD-004 |
 | RNF Custo zero | CARD-001 |
-| Escopo depois: migração para React | CARD-025 |
+| Migração para React | Descartado (CARD-025) |
 
 ## Premissas assumidas
 
@@ -196,10 +191,9 @@ Detalhes de implementação que o refinamento não fixou e foram decididos na qu
 - No fluxo "Novo" da aba "Já fui", sair sem salvar a visita deixa o lugar em "Quero ir" (CARD-013).
 - No import com "mesclar", as visitas de um lugar ignorado por nome duplicado também são ignoradas, para não gerar visitas órfãs (CARD-017).
 - "Depois" no lembrete de backup esconde o banner até a próxima abertura do app (CARD-018).
-- A migração para React virou spike porque a reescrita completa passa de 1 dia (CARD-025).
 - "Apagar todos os dados" limpa lugares, visitas e `lastExportAt`, mas mantém `schemaVersion` e `persistentStorage`. A confirmação tem dois passos e não existe desfazer: para voltar atrás, é preciso importar um backup (CARD-026).
 - Testes automatizados são opcionais; as funções puras de `services/` podem ser testadas com `node --test`.
 
 ## Perguntas em aberto
 
-Nenhuma que bloqueie o MVP.
+Nenhuma. Não há cards pendentes.

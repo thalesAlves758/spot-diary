@@ -7,12 +7,14 @@ camadas: [front, banco]
 complexidade: M
 prioridade: depois
 incerteza: media
-status: todo
+status: descartado
 requisitos: [RF15]
 depende_de: [CARD-019]
 ---
 
 # CARD-020 — Fotos na visita
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Anexar fotos às visitas, conforme as decisões do spike.

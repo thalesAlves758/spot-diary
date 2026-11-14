@@ -7,12 +7,14 @@ camadas: [front, integracao]
 complexidade: M
 prioridade: depois
 incerteza: media
-status: todo
+status: descartado
 requisitos: [RF16]
 depende_de: [CARD-022]
 ---
 
 # CARD-023 — Busca de lugar no mapa
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Preencher o cadastro a partir de uma busca de lugares, conforme o spike.

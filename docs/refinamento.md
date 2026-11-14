@@ -1,7 +1,7 @@
 # Refinamento — Diário de Rolê
 
 07/11/2026 · Thales Alves · [versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)
-Atualizado em 08/11/2026: ordenação das listas (RF19, RN13–RN16, T7). A versão online não tem essa atualização.
+Atualizado em 08/11/2026: ordenação das listas (RF19, RN13–RN16, T7). Atualizado em 13/11/2026: fotos, mapa, login/sync e React descartados (RF15–RF17). A versão online não tem essas atualizações.
 
 ## Visão geral
 
@@ -15,7 +15,7 @@ O Diário de Rolê é um PWA pessoal e offline para guardar os lugares que você
 
 ## Escopo
 
-O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e login ficam para depois.
+O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e login foram descartados em 13/11/2026: o app continua 100% local.
 
 **Entra no MVP**
 
@@ -29,12 +29,14 @@ O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e log
 - Apagar todos os dados do aparelho, com confirmação dupla
 - App instalável na tela inicial, funcionando 100% offline
 
-**Fica para depois**
+**Descartado (13/11/2026)**
 
-- Fotos nas visitas (comprimidas e com limite por visita)
-- Mapa e busca de lugares (Google Places ou similar)
-- Login e sincronização entre aparelhos
-- Migração da interface para React
+Estes itens estavam planejados para depois do MVP. Foram descartados porque esbarram nos limites de um app 100% local, sem servidor e sem chamadas externas. Se voltarem, devem vir num projeto novo, não nesta arquitetura.
+
+- Fotos nas visitas: pesam no armazenamento do celular e no backup (RF15).
+- Mapa e busca de lugares: dependem de chamadas externas e, no Google Places, de chave e custo (RF16).
+- Login e sincronização entre aparelhos: exigem servidor (RF17). O mesmo vale para grupos de listas compartilhados e colaboração, avaliados em 13/11/2026.
+- Migração da interface para React: acrescenta etapa de build e dependências, com pouco ganho para um app pessoal que já funciona.
 
 **Não-objetivos**
 
@@ -44,7 +46,7 @@ O MVP cobre cadastro manual, visitas, filtros e backup em JSON. Foto, mapa e log
 
 ## Requisitos funcionais
 
-São 16 requisitos no MVP e 3 para depois, no formato ação → resposta do sistema. O RF19 foi incluído em 08/11/2026, depois da entrega do MVP.
+São 16 requisitos no MVP e 3 descartados, no formato ação → resposta do sistema. O RF19 foi incluído em 08/11/2026, depois da entrega do MVP.
 
 | ID | Requisito (ação → resposta) | Prioridade |
 | --- | --- | --- |
@@ -62,9 +64,9 @@ São 16 requisitos no MVP e 3 para depois, no formato ação → resposta do sis
 | RF12 | Exportar dados → baixa um arquivo JSON com todos os lugares e visitas | MVP |
 | RF13 | Importar arquivo JSON → valida e pergunta se deve substituir tudo ou mesclar | MVP |
 | RF14 | Abrir o app muito tempo após o último export → exibe lembrete de backup | MVP |
-| RF15 | Anexar fotos à visita → comprime e salva junto da visita | Depois |
-| RF16 | Buscar lugar no mapa → preenche nome, endereço e localização | Depois |
-| RF17 | Entrar com conta → sincroniza dados entre aparelhos | Depois |
+| RF15 | Anexar fotos à visita → comprime e salva junto da visita | Descartado |
+| RF16 | Buscar lugar no mapa → preenche nome, endereço e localização | Descartado |
+| RF17 | Entrar com conta → sincroniza dados entre aparelhos | Descartado |
 | RF18 | Apagar todos os dados → mostra o que será apagado e a data do último backup, pede confirmação dupla e remove todos os lugares e visitas | MVP |
 | RF19 | Escolher a ordenação na aba atual → reordena a lista na hora e lembra a escolha daquela aba ao reabrir o app | MVP |
 
@@ -303,7 +305,7 @@ erDiagram
 
 ## Visão técnica
 
-JS vanilla com ES modules e IndexedDB, em camadas separadas, para que a migração para React reescreva só a interface.
+JS vanilla com ES modules e IndexedDB, em camadas separadas, para manter as regras de negócio fora da interface.
 
 **Stack**
 
@@ -319,13 +321,12 @@ JS vanilla com ES modules e IndexedDB, em camadas separadas, para que a migraç�
 3. `ui/` — telas e componentes; chama apenas `services/`.
 4. `sw.js` — service worker com cache versionado.
 
-**Caminho para React:** `db/` e `services/` são reaproveitados como estão; só `ui/` é reescrita. Por isso a regra de ouro é nenhuma lógica de negócio dentro dos handlers da interface.
+**Regra de ouro:** nenhuma lógica de negócio dentro dos handlers da interface. Assim as regras ficam testáveis em `services/` e a interface pode mudar sem mexer nelas. Essa separação foi pensada também para uma migração para React, descartada em 13/11/2026.
 
 **Pontos de atenção**
 
 - Versionar o cache do service worker para o app atualizar quando você publicar mudanças.
-- Gravar `schemaVersion` desde a v1 e tratar migrações no `onupgradeneeded`, pensando em fotos e sync no futuro.
-- Fotos (v2): salvar como Blob no IndexedDB após compressão via canvas; o backup passa a ser um .zip (JSON + imagens).
+- Gravar `schemaVersion` desde a v1 e tratar migrações no `onupgradeneeded`.
 - Ordenação (RF19): as funções de comparação ficam em `services/` como funções puras, substituindo a ordem fixa de hoje (`sortWantToGo` / `sortBeenThere`). A preferência é lida e gravada em `meta.homeSort` por meio de `services/` → `db/meta`, como os outros valores de `meta`. Não precisa de índice novo nem de migração: a ordenação roda em memória sobre a lista já carregada, e chave nova em `meta` não muda o `schemaVersion`.
 
 ## Riscos e perguntas em aberto
@@ -335,7 +336,7 @@ O maior risco é perder dados guardados só no celular; o resto é escopo e evol
 | Risco | Impacto | Mitigação |
 | --- | --- | --- |
 | Limpar dados do navegador, reinstalar ou trocar de celular apaga tudo | Alto | Export JSON, lembrete de 30 dias, armazenamento persistente |
-| Escopo crescer antes do MVP rodar (fotos, mapa, login) | Médio | Itens já separados em "Fica para depois" |
+| Escopo crescer além do que um app local suporta (fotos, mapa, login) | Médio | Itens descartados em 13/11/2026; ideias que precisem de servidor vão para um projeto novo |
 | Mudança de esquema quebrar backups antigos | Médio | `schemaVersion` no banco e no JSON desde a v1, com migração |
 | Arquivo de import corrompido ou de outra versão | Médio | Validar tudo antes de gravar; gravar em uma transação |
 | Uso futuro em iPhone | Baixo | Fora do MVP; Safari limpa dados de PWA não instalado |

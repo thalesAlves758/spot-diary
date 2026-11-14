@@ -7,12 +7,14 @@ camadas: [front]
 complexidade: M
 prioridade: depois
 incerteza: media
-status: todo
+status: descartado
 requisitos: [RF15, RF12, RF13]
 depende_de: [CARD-017, CARD-020]
 ---
 
 # CARD-021 — Backup em .zip com fotos
+
+> **Descartado em 13/11/2026.** O app continua 100% local (sem servidor e sem chamadas externas), e esta evolução esbarra nesses limites. O motivo de cada item está no [refinamento](../../refinamento.md#escopo). Se voltar, deve ser num projeto novo.
 
 ## Contexto
 Com fotos, o backup deixa de caber num JSON.
