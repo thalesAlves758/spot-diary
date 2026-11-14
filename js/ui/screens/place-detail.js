@@ -6,7 +6,8 @@ import { createHeader, iconButton } from '../components/header.js';
 import { createEmptyState } from '../components/empty-state.js';
 import { createStars } from '../components/stars.js';
 import { createFavoriteButton } from '../components/favorite-button.js';
-import { formatAddress, formatAverage, formatDate, plural } from '../format.js';
+import { showToast } from '../components/toast.js';
+import { formatAddress, formatAverage, formatDate, hasAddress, mapsSearchUrl, placeShareText, plural } from '../format.js';
 import { getPlaceDetail, placeTypeLabel, STATUS } from '../../services/places.js';
 
 export async function render(root, { params }) {
@@ -34,7 +35,10 @@ export async function render(root, { params }) {
     createHeader({
       title: 'Lugar',
       back: true,
-      actions: [iconButton({ name: 'edit', label: 'Editar lugar', onClick: () => navigate(`${placePath}/edit`) })],
+      actions: [
+        iconButton({ name: 'share', label: 'Compartilhar lugar', onClick: () => sharePlace(place, summary) }),
+        iconButton({ name: 'edit', label: 'Editar lugar', onClick: () => navigate(`${placePath}/edit`) }),
+      ],
     }),
     h('main', { class: 'page detail' },
       // ---- Place ----
@@ -49,6 +53,9 @@ export async function render(root, { params }) {
           place.tags.map((tag) => h('li', { class: 'tag' }, tag))),
         addressLines.length > 0 && h('address', { class: 'detail__address' },
           addressLines.map((line) => h('span', { class: 'detail__address-line' }, line))),
+        hasAddress(place.address)
+          && h('a', { class: 'btn btn-ghost', href: mapsSearchUrl(place), target: '_blank', rel: 'noopener' },
+            icon('map-pin'), 'Abrir no Maps'),
       ),
 
       // ---- Summary + main action ----
@@ -78,6 +85,21 @@ export async function render(root, { params }) {
       ),
     ),
   );
+}
+
+/** Native share sheet when available; otherwise (desktop) copies the text. Closing the sheet is not an error. */
+async function sharePlace(place, summary) {
+  const text = placeShareText(place, summary);
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: place.name, text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      showToast('Texto copiado');
+    }
+  } catch (error) {
+    if (error?.name !== 'AbortError') showToast('Não foi possível compartilhar.');
+  }
 }
 
 function renderNoVisits(place, recordVisit) {

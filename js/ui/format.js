@@ -1,5 +1,7 @@
 // Display formatting (pt-BR). Values are stored in neutral formats; only the UI formats them.
 
+import { ADDRESS_FIELDS, STATUS, placeTypeLabel } from '../services/places.js';
+
 const averageFormat = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /** 4.5 → "4,5" */
@@ -44,4 +46,31 @@ export function formatAddress(address = {}) {
 /** 1 → "1 visita", 3 → "3 visitas" */
 export function plural(count, singular, pluralForm) {
   return `${count} ${count === 1 ? singular : pluralForm}`;
+}
+
+/** True when any address field has text beyond whitespace. */
+export function hasAddress(address) {
+  return ADDRESS_FIELDS.some((field) => String(address?.[field] ?? '').trim() !== '');
+}
+
+/** Google Maps search link for the place name plus its address (opened by the user, not fetched by the app). */
+export function mapsSearchUrl(place) {
+  const query = [place.name, ...formatAddress(place.address)].join(', ');
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+/** Text sent by "Compartilhar" (RN21): one piece of information per line, no empty lines. */
+export function placeShareText(place, summary) {
+  const lines = [`${place.name} (${placeTypeLabel(place.type)})`];
+  if (place.status === STATUS.BEEN_THERE && summary?.visitCount > 0) {
+    lines.push([
+      `★ ${formatAverage(summary.average)}`,
+      plural(summary.visitCount, 'visita', 'visitas'),
+      summary.lastWouldReturn ? 'voltaria' : 'não voltaria',
+    ].join(' · '));
+  }
+  if (hasAddress(place.address)) {
+    lines.push(formatAddress(place.address).join(' · '), mapsSearchUrl(place));
+  }
+  return lines.join('\n');
 }
