@@ -1,17 +1,22 @@
 // Service worker: precaches the app files so it works 100% offline after the first load.
 // User data never goes through here; it lives in IndexedDB.
 //
-// On every deploy: bump CACHE_VERSION, otherwise installed apps never receive the update.
+// On every release: bump the version in js/version.js, otherwise installed apps never receive the update.
+// The browser also compares imported scripts when checking for updates, so changing only
+// js/version.js is enough. Never write CACHE_VERSION by hand (tests/sw.test.js checks it).
 // Every new app file must be added to ASSETS, otherwise it breaks offline mode.
 
+importScripts('js/version.js');
+
 const CACHE_PREFIX = 'diario-';
-const CACHE_VERSION = 'diario-v4';
+const CACHE_VERSION = CACHE_PREFIX + self.APP_VERSION;
 
 const ASSETS = [
   './',
   'index.html',
   'manifest.webmanifest',
   'css/app.css',
+  'js/version.js',
   'js/app.js',
   'js/router.js',
   'js/sw-register.js',
@@ -21,6 +26,7 @@ const ASSETS = [
   'js/db/places.js',
   'js/db/util.js',
   'js/db/visits.js',
+  'js/services/app-info.js',
   'js/services/backup-import.js',
   'js/services/backup.js',
   'js/services/data-reset.js',

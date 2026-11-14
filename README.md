@@ -203,7 +203,7 @@ O arquivo se chama `diario-de-role-AAAA-MM-DD.json`, com a data local do aparelh
 ### Offline e atualização
 
 - O service worker guarda no cache, na instalação, todos os arquivos do app (a lista `ASSETS`, mantida à mão) e responde primeiro do cache.
-- O cache tem versão (`diario-vN`). Quando ela muda, a versão nova fica esperando, e o app mostra o aviso "Nova versão disponível". Ao tocar em "Recarregar", a versão nova assume e os caches antigos são apagados.
+- O cache tem a versão do app no nome (`diario-1.0.0`), vinda de `js/version.js`. Quando ela muda, a versão nova fica esperando, e o app mostra o aviso "Nova versão disponível". Ao tocar em "Recarregar", a versão nova assume e os caches antigos são apagados.
 - O app procura atualização também quando volta para a tela, porque um app instalado pode ficar dias aberto em segundo plano.
 - O service worker nunca guarda dados do usuário: eles ficam só no IndexedDB.
 
@@ -266,10 +266,10 @@ Todos os caminhos do app são relativos, então ele funciona dentro de uma subpa
 
 O GitHub Pages publica a branch `main`. O trabalho acontece na `dev`, com uma branch por card, e chega à `main` numa release (o fluxo completo está no [CLAUDE.md](CLAUDE.md#git-workflow-and-subagents)).
 
-1. **Em cada card:** se criou um arquivo novo, inclua ele na lista `ASSETS` de [sw.js](sw.js). Não mexa na versão do cache.
-2. **Na release:** se algum arquivo do app mudou desde a última release, aumente a versão do cache em `sw.js` (ex.: `diario-v4` → `diario-v5`) num commit na `dev`. Depois, faça o merge da `dev` na `main` e o push.
+1. **Em cada card:** se criou um arquivo novo, inclua ele na lista `ASSETS` de [sw.js](sw.js). Não mexa na versão.
+2. **Na release:** num commit na `dev`, suba a versão em [js/version.js](js/version.js) (ex.: `1.0.0` → `1.1.0`) e escreva a seção dela no [CHANGELOG.md](CHANGELOG.md). Depois, faça o merge da `dev` na `main`, crie a tag `vX.Y.Z` e faça o push das duas branches e da tag.
 
-Sem a versão nova, o navegador nem percebe que o `sw.js` mudou e continua servindo a versão antiga do cache, inclusive no app instalado.
+A versão fica só no `js/version.js`, e o `sw.js` monta o nome do cache a partir dela (`diario-1.0.0`). Sem a versão nova, o navegador nem percebe que algo mudou e continua servindo a versão antiga do cache, inclusive no app instalado. O teste `tests/sw.test.js` falha se o nome do cache for escrito à mão ou se faltar algum arquivo em `ASSETS`.
 
 ---
 
@@ -289,7 +289,7 @@ Sem a versão nova, o navegador nem percebe que o `sw.js` mudou e continua servi
 - Os dados são só deste aparelho e deste navegador, sem sincronização.
 - O alvo é o Chrome no Android. O iPhone não é garantido: o Safari pode apagar os dados de um PWA que não foi instalado.
 - Não há fotos, mapa nem busca de endereço. Esses itens foram descartados (veja o [Roadmap](#roadmap)).
-- Os testes de ponta a ponta usados no desenvolvimento rodaram no Chrome sem interface (headless) e **ainda não estão versionados no repositório**.
+- Os testes automatizados do repositório são unitários (regras de `services/` e do service worker) e rodam com `node --test`, localmente ou no GitHub Actions a cada push na `dev` e na `main`. A interface é validada à mão; os testes de ponta a ponta usados no desenvolvimento, no Chrome sem interface (headless), não estão versionados.
 
 ---
 
