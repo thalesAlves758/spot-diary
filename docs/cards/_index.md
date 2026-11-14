@@ -65,8 +65,8 @@
 | [CARD-029](08-v1-1-configuracoes/CARD-029-tela-de-configuracoes.md) | Tela de Configurações | configuracoes | feature | M | mvp | baixa | sonnet | done | 028 |
 | [CARD-030](08-v1-1-configuracoes/CARD-030-tema-escuro.md) | Tema escuro | configuracoes | feature | M | mvp | media | sonnet | done | 029 |
 | [CARD-031](08-v1-1-configuracoes/CARD-031-backup-pelo-compartilhar.md) | Backup pelo compartilhar | configuracoes | feature | P | mvp | media | sonnet | done | 030 |
-| [CARD-032](09-v1-2-sair-de-casa/CARD-032-maps-e-compartilhar-lugar.md) | Abrir no Maps e compartilhar lugar | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
-| [CARD-033](09-v1-2-sair-de-casa/CARD-033-sortear-e-atalhos.md) | Sortear um lugar e atalhos do ícone | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
+| [CARD-032](09-v1-2-sair-de-casa/CARD-032-maps-e-compartilhar-lugar.md) | Abrir no Maps e compartilhar lugar | sair-de-casa | feature | M | mvp | baixa | sonnet | done | 031 |
+| [CARD-033](09-v1-2-sair-de-casa/CARD-033-sortear-e-atalhos.md) | Sortear um lugar e atalhos do ícone | sair-de-casa | feature | M | mvp | baixa | sonnet | done | 031 |
 | [CARD-034](10-v1-3-registros/CARD-034-esquema-v2-e-backup.md) | Esquema v2: campos novos e backup versão 2 | registros | dados | M | mvp | media | opus | todo | 032, 033 |
 | [CARD-035](10-v1-3-registros/CARD-035-faixa-de-preco.md) | Faixa de preço no lugar | registros | feature | M | mvp | baixa | sonnet | todo | 034 |
 | [CARD-036](10-v1-3-registros/CARD-036-indicado-por-e-link.md) | Indicado por e link do lugar | registros | feature | M | mvp | baixa | sonnet | todo | 035 |

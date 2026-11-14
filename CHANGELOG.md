@@ -2,6 +2,16 @@
 
 Cada versão publicada do Diário de Rolê tem uma seção, da mais recente para a mais antiga, com a data da release e o que mudou. A versão segue `MAIOR.MENOR.CORREÇÃO` (RN19).
 
+## 1.2.0 — 2026-11-14
+
+Sair de casa.
+
+- **Abrir no Maps:** no detalhe de um lugar com endereço, o botão "Abrir no Maps" busca o lugar no Google Maps.
+- **Compartilhar lugar:** o ícone de compartilhar no detalhe manda um texto com nome, tipo, nota, endereço e link do Maps. No computador, o texto é copiado.
+- **Sortear:** o botão "Sortear" na tela inicial escolhe um lugar entre os que estão na lista (com busca e filtros), com "Sortear de novo" e "Ver lugar".
+- **Atalhos do ícone:** segurando o ícone do app aparecem "Novo" e "Sortear".
+- Tema escuro com o mesmo vermelho do tema claro e novo ícone de engrenagem em Configurações.
+
 ## 1.1.0 — 2026-11-14
 
 Configurações.
