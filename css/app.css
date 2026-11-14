@@ -513,7 +513,9 @@ select.field__input { appearance: auto; }
 .toggle__input:focus-visible + .toggle-chip { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 
 /* ===== Sort row + panel (T1/T7, CARD-027) ===== */
-.sort-row { display: flex; margin-bottom: var(--space-2); }
+.sort-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+.draw-btn { color: var(--color-primary-text); font-weight: 600; }
+.draw-card { padding: var(--space-1) 0; }
 .sort-row[hidden] { display: none; }
 .sort-btn {
   display: inline-flex;

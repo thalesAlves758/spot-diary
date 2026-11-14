@@ -23,6 +23,16 @@ export function buildHomeLists(places, visits, sort = DEFAULT_SORT) {
   };
 }
 
+/**
+ * One random item (RN22). With 2+ items, never returns `excludeId`. `null` if the list is empty.
+ * Items are `{ place, summary }`; each candidate has the same chance.
+ */
+export function pickRandom(items, { excludeId = null, random = Math.random } = {}) {
+  if (!items.length) return null;
+  const pool = items.length > 1 ? items.filter((i) => i.place.id !== excludeId) : items;
+  return pool[Math.floor(random() * pool.length)];
+}
+
 /** Loads places and visits once and builds both lists in the given order. */
 export async function loadHomeLists(sort) {
   const [places, visits] = await Promise.all([placesDb.list(), visitsDb.listAll()]);
