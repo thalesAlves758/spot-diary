@@ -61,6 +61,8 @@ Key invariants that span layers:
 
 Flow: `branch-por-card`. Each card is implemented on its own branch and merged into `dev` one at a time.
 
+The subagent prompt template and the per-card checklist are in `docs/cards/_index.md`, section "Como implementar um card".
+
 **Branches**
 - `main` — stable; GitHub Pages publishes it. It only receives code from `dev`, and only when the user asks (a release). No card work is committed to it directly.
 - `dev` — integration branch. Cards branch off it and are merged back into it.
