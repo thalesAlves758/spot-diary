@@ -10,7 +10,7 @@ import { createFavoriteButton } from '../components/favorite-button.js';
 import { openBottomSheet } from '../components/bottom-sheet.js';
 import { showToast } from '../components/toast.js';
 import { formatAverage, formatDate } from '../format.js';
-import { loadHomeLists, getHomeSort, setHomeSort } from '../../services/lists.js';
+import { loadHomeLists, getHomeSort, setHomeSort, pickRandom } from '../../services/lists.js';
 import { SORT_OPTIONS, sortItems, sortLabel } from '../../services/sorting.js';
 import {
   searchByName, normalizeTerm, applyFilters, countActiveFilters, emptyFilters,
@@ -49,9 +49,11 @@ export async function render(root, { query }) {
   const reminder = !isBackupReminderDismissed() && shouldRemindBackup({ lastExportAt, placeCount })
     ? createBackupReminder({ neverExported: !lastExportAt, onExport: () => navigate('/settings') })
     : null;
-  let current = query.get('tab') === STATUS.BEEN_THERE ? STATUS.BEEN_THERE : STATUS.WANT_TO_GO;
-  let term = query.get('q') ?? '';
-  let filters = filtersFromQuery(query);
+  // `draw=1` comes from the app icon shortcut: the whole "Quero ir" list, ignoring search and filters.
+  const drawShortcut = query.get('draw') === '1';
+  let current = !drawShortcut && query.get('tab') === STATUS.BEEN_THERE ? STATUS.BEEN_THERE : STATUS.WANT_TO_GO;
+  let term = drawShortcut ? '' : query.get('q') ?? '';
+  let filters = drawShortcut ? emptyFilters() : filtersFromQuery(query);
   let debounce = null;
   const allTags = uniqueTags([...lists[STATUS.WANT_TO_GO], ...lists[STATUS.BEEN_THERE]].map((i) => i.place));
 
@@ -88,7 +90,14 @@ export async function render(root, { query }) {
       },
     }),
   }, sortLabelText, icon('chevron-down'));
-  const sortRow = h('div', { class: 'sort-row' }, sortButton);
+  const drawButton = h('button', {
+    type: 'button',
+    class: 'sort-btn draw-btn',
+    'aria-label': 'Sortear um lugar da lista',
+    // The list on screen right now: current tab with search and filters applied.
+    onclick: () => openDrawSheet({ items: visible(current), status: current }),
+  }, icon('dice'), h('span', {}, 'Sortear'));
+  const sortRow = h('div', { class: 'sort-row' }, sortButton, drawButton);
 
   // Redraws counts, filter badge and list for the current tab, search and filters, and keeps
   // them all in the URL so going back from a place returns to the same view.
@@ -232,7 +241,13 @@ export async function render(root, { query }) {
     h('button', { type: 'button', class: 'fab', onclick: () => navigate(newPlacePath(current)) },
       icon('plus'), h('span', {}, 'Novo')),
   );
+  // select() rewrites the query without `draw`, so reloading or going back doesn't draw again.
   select(current);
+  if (drawShortcut) {
+    const items = visible(STATUS.WANT_TO_GO);
+    if (items.length) openDrawSheet({ items, status: STATUS.WANT_TO_GO });
+    else showToast('Nenhum lugar em "Quero ir" para sortear.');
+  }
 
   return () => clearTimeout(debounce);
 }
@@ -315,6 +330,42 @@ function renderCard({ place, summary }, status) {
       onChange: (favorite) => { place.favorite = favorite; },
     }),
   );
+}
+
+// ---------------------------------------------------------------- Draw panel (T9, CARD-033)
+
+/** Shows one random place from `items`; "Sortear de novo" swaps it for another (RN22, saves nothing). */
+function openDrawSheet({ items, status }) {
+  let drawn = pickRandom(items);
+  if (!drawn) return;
+  const cardHost = h('ul', { class: 'card-list draw-card' });
+  const again = h('button', { type: 'button', class: 'btn btn-ghost', disabled: items.length < 2 }, 'Sortear de novo');
+  // Tapping the card navigates (renderCard's own handler): close the panel first, in capture phase.
+  // The heart is a sibling of the link, so favoriting leaves the panel open.
+  cardHost.addEventListener('click', (event) => {
+    if (event.target.closest('.place-card')) sheet.close();
+  }, true);
+  const paint = () => cardHost.replaceChildren(renderCard(drawn, status));
+  paint();
+  again.addEventListener('click', () => {
+    drawn = pickRandom(items, { excludeId: drawn.place.id });
+    paint();
+  });
+
+  let sheet;
+  const footer = h('div', {},
+    again,
+    h('button', {
+      type: 'button',
+      class: 'btn btn-primary',
+      onclick: () => {
+        const id = drawn.place.id;
+        sheet.close();
+        navigate(`/place/${encodeURIComponent(id)}`);
+      },
+    }, 'Ver lugar'),
+  );
+  sheet = openBottomSheet({ title: 'Sorteado!', content: cardHost, footer });
 }
 
 // ---------------------------------------------------------------- Sort panel (T7, CARD-027)
