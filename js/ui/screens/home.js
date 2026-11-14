@@ -47,7 +47,7 @@ export async function render(root, { query }) {
   const [lists, lastExportAt] = await Promise.all([loadHomeLists(sort), getLastExportAt()]);
   const placeCount = lists[STATUS.WANT_TO_GO].length + lists[STATUS.BEEN_THERE].length;
   const reminder = !isBackupReminderDismissed() && shouldRemindBackup({ lastExportAt, placeCount })
-    ? createBackupReminder({ neverExported: !lastExportAt, onExport: () => navigate('/backup') })
+    ? createBackupReminder({ neverExported: !lastExportAt, onExport: () => navigate('/settings') })
     : null;
   let current = query.get('tab') === STATUS.BEEN_THERE ? STATUS.BEEN_THERE : STATUS.WANT_TO_GO;
   let term = query.get('q') ?? '';
@@ -225,7 +225,7 @@ export async function render(root, { query }) {
   root.append(
     createHeader({
       title: 'Diário de Rolê',
-      actions: [iconButton({ name: 'backup', label: 'Backup', onClick: () => navigate('/backup') })],
+      actions: [iconButton({ name: 'settings', label: 'Configurações', onClick: () => navigate('/settings') })],
     }),
     h('div', { class: 'home-bar' }, tablist, searchBar),
     h('main', { class: 'page' }, reminder, sortRow, panel),

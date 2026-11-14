@@ -3,7 +3,8 @@
 import { openDatabase, SchemaMismatchError } from './db/index.js';
 import { requestPersistentStorage } from './db/persistence.js';
 import { registerServiceWorker } from './sw-register.js';
-import { route, startRouter } from './router.js';
+import { route, replace, startRouter } from './router.js';
+import { initTheme } from './ui/theme.js';
 import { showUpdateBanner } from './ui/components/update-banner.js';
 
 route('/', () => import('./ui/screens/home.js'));
@@ -12,7 +13,9 @@ route('/place/:id', () => import('./ui/screens/place-detail.js'));
 route('/place/:id/edit', () => import('./ui/screens/place-form.js'));
 route('/place/:placeId/visit/new', () => import('./ui/screens/visit-form.js'));
 route('/visit/:id/edit', () => import('./ui/screens/visit-form.js'));
-route('/backup', () => import('./ui/screens/backup.js'));
+route('/settings', () => import('./ui/screens/settings.js'));
+// Old route: redirects without a screen of its own, so #/backup never stays in the history.
+route('/backup', async () => ({ render() { replace('/settings'); } }));
 
 async function start() {
   registerServiceWorker({ onUpdate: showUpdateBanner })
@@ -29,6 +32,7 @@ async function start() {
       : 'Não foi possível abrir o banco de dados do app.';
     return;
   }
+  initTheme().catch((error) => console.warn('Theme:', error));
   requestPersistentStorage().catch((error) => console.warn('Persistent storage:', error));
   startRouter(root);
 }

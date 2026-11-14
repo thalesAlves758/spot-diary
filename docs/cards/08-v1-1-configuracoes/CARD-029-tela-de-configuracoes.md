@@ -8,7 +8,7 @@ complexidade: M
 prioridade: mvp
 incerteza: baixa
 modelo_sugerido: sonnet
-status: todo
+status: done
 requisitos: [RF20, RF23, RF12, RF13, RF18]
 depende_de: [CARD-028]
 ---

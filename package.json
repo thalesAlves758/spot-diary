@@ -1,0 +1,8 @@
+{
+  "name": "diario-de-role",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,4 +1,4 @@
-// T6 — Settings / Backup. Export: CARD-016. Import: CARD-017. Erase all data: CARD-026.
+// T6 — Configurações. Export: CARD-016. Import: CARD-017. Erase all data: CARD-026. Settings screen: CARD-029.
 import { h } from '../dom.js';
 import { resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
@@ -6,11 +6,15 @@ import { showToast } from '../components/toast.js';
 import { confirmDialog } from '../components/confirm-dialog.js';
 import { formatDateTime, formatLocalDate, plural } from '../format.js';
 import {
-  buildBackup, serializeBackup, backupFileName, markExported, getLastExportAt, countData,
+  buildBackup, serializeBackup, backupFileName, backupShareFile, markExported, getLastExportAt, countData,
 } from '../../services/backup.js';
 import { parseBackup, importBackup, IMPORT_MODE } from '../../services/backup-import.js';
 import { eraseAllData } from '../../services/data-reset.js';
 import { ImportError } from '../../services/errors.js';
+import { THEMES, getTheme, setTheme } from '../../services/theme.js';
+import { applyTheme } from '../theme.js';
+import { getAppVersion } from '../../services/app-info.js';
+import { icon } from '../icons.js';
 
 const places = (n) => plural(n, 'lugar', 'lugares');
 const visits = (n) => plural(n, 'visita', 'visitas');
@@ -23,17 +27,57 @@ async function refreshCounts() {
 }
 
 export async function render(root) {
-  const [lastExportAt, counts] = await Promise.all([getLastExportAt(), countData()]);
+  const [lastExportAt, counts, theme] = await Promise.all([getLastExportAt(), countData(), getTheme()]);
   countListeners = [];
 
   root.append(
-    createHeader({ title: 'Backup', back: true }),
+    createHeader({ title: 'Configurações', back: true }),
     h('main', { class: 'page' },
-      buildExportPanel(lastExportAt, counts),
-      buildImportPanel(),
-      buildErasePanel(counts),
+      buildSection('Aparência', buildThemeChoice(theme)),
+      buildSection('Backup',
+        buildExportPanel(lastExportAt, counts),
+        buildImportPanel(),
+      ),
+      buildSection('Dados', buildErasePanel(counts)),
+      buildSection('Sobre', h('p', { class: 'panel__text' }, `Diário de Rolê · Versão ${getAppVersion()}`)),
     ),
   );
+}
+
+/** A titled block of the settings screen. */
+function buildSection(title, ...content) {
+  return h('section', { class: 'settings-section' },
+    h('h2', { class: 'settings-section__title' }, title),
+    ...content,
+  );
+}
+
+// ---------------------------------------------------------------- Theme (CARD-030)
+
+const THEME_LABELS = { auto: 'Automático', light: 'Claro', dark: 'Escuro' };
+
+function buildThemeChoice(initial) {
+  let saved = initial;
+  const inputs = THEMES.map((value) => h('input', {
+    type: 'radio', name: 'theme', value, id: `theme-${value}`, class: 'choice__input', checked: value === initial,
+  }));
+
+  const group = h('div', { class: 'choice', role: 'radiogroup', 'aria-label': 'Tema' },
+    inputs.map((input) => [input, h('label', { for: input.id, class: 'choice__option' }, THEME_LABELS[input.value])]));
+
+  group.addEventListener('change', async (event) => {
+    const value = event.target.value;
+    try {
+      await setTheme(value);
+      saved = value;
+      applyTheme(value);
+    } catch (error) {
+      console.error(error);
+      showToast('Não foi possível salvar o tema.');
+      for (const input of inputs) input.checked = input.value === saved;
+    }
+  });
+  return group;
 }
 
 // ---------------------------------------------------------------- Export (CARD-016)
@@ -54,10 +98,39 @@ function buildExportPanel(lastExportAt, counts) {
   showCounts(counts);
   countListeners.push(showCounts);
 
-  const exportButton = h('button', { type: 'button', class: 'btn btn-primary btn-block' }, 'Exportar');
+  const exportButton = h('button', { type: 'button', class: 'btn btn-primary btn-block' }, 'Baixar arquivo');
+  const shareButton = canShareBackupFile()
+    ? h('button', { type: 'button', class: 'btn btn-ghost btn-block' }, icon('share'), 'Compartilhar')
+    : null;
+  const setBusy = (busy) => {
+    exportButton.disabled = busy;
+    if (shareButton) shareButton.disabled = busy;
+  };
+
+  shareButton?.addEventListener('click', async () => {
+    setBusy(true);
+    try {
+      const backup = await buildBackup();
+      const { name, type } = backupShareFile(new Date(backup.exportedAt));
+      const file = new File([serializeBackup(backup)], name, { type });
+      await navigator.share({ files: [file], title: 'Backup do Diário de Rolê' });
+      await markExported(backup.exportedAt);
+      showLastExport(backup.exportedAt);
+      showToast('Backup compartilhado');
+    } catch (error) {
+      // Closing the share menu is not an error: no toast, no date.
+      if (error?.name !== 'AbortError') {
+        console.error(error);
+        showToast('Não foi possível compartilhar. Tente de novo.');
+      }
+    } finally {
+      setBusy(false);
+    }
+  });
+
   exportButton.addEventListener('click', async () => {
-    exportButton.disabled = true;
-    exportButton.textContent = 'Exportando…';
+    setBusy(true);
+    exportButton.textContent = 'Baixando…';
     try {
       const backup = await buildBackup();
       downloadText(serializeBackup(backup), backupFileName(new Date(backup.exportedAt)), 'application/json');
@@ -68,20 +141,30 @@ function buildExportPanel(lastExportAt, counts) {
       console.error(error);
       showToast('Não foi possível exportar. Tente de novo.');
     } finally {
-      exportButton.disabled = false;
-      exportButton.textContent = 'Exportar';
+      setBusy(false);
+      exportButton.textContent = 'Baixar arquivo';
     }
   });
 
   return h('section', { class: 'panel', 'aria-labelledby': 'export-title' },
-    h('h2', { class: 'panel__title', id: 'export-title' }, 'Exportar'),
+    h('h3', { class: 'panel__title', id: 'export-title' }, 'Exportar'),
     h('p', { class: 'panel__text' },
       'Seus dados ficam só neste aparelho. Exporte um backup de vez em quando e guarde o arquivo '
       + 'fora do celular (Drive, e-mail, computador).'),
     countsText,
     lastExportText,
-    exportButton,
+    h('div', { class: 'backup__actions' }, exportButton, shareButton),
   );
+}
+
+/** Whether this browser can share the backup file (tested once, with an empty file of the same name/type). */
+function canShareBackupFile() {
+  try {
+    const { name, type } = backupShareFile();
+    return Boolean(navigator.canShare?.({ files: [new File([], name, { type })] }) && navigator.share);
+  } catch {
+    return false;
+  }
 }
 
 /** Saves text as a file (goes to Downloads on Android). */
@@ -142,7 +225,7 @@ function buildErasePanel(initialCounts) {
   });
 
   return h('section', { class: 'panel danger-panel', 'aria-labelledby': 'erase-title' },
-    h('h2', { class: 'panel__title', id: 'erase-title' }, 'Apagar dados'),
+    h('h3', { class: 'panel__title', id: 'erase-title' }, 'Apagar dados'),
     h('p', { class: 'panel__text' },
       'Apaga todos os lugares e visitas deste aparelho. Não dá para desfazer: para recuperar, '
       + 'só importando um backup.'),
@@ -154,7 +237,7 @@ function buildErasePanel(initialCounts) {
 
 function buildImportPanel() {
   const fileInput = h('input', {
-    type: 'file', accept: 'application/json,.json', hidden: true, id: 'import-file', 'aria-label': 'Arquivo de backup',
+    type: 'file', accept: 'application/json,.json,text/plain,.txt', hidden: true, id: 'import-file', 'aria-label': 'Arquivo de backup',
   });
   const pickButton = h('button', { type: 'button', class: 'btn btn-ghost btn-block' }, 'Escolher arquivo');
   const status = h('div', { class: 'import-status', 'aria-live': 'polite' });
@@ -176,7 +259,7 @@ function buildImportPanel() {
   });
 
   return h('section', { class: 'panel', 'aria-labelledby': 'import-title' },
-    h('h2', { class: 'panel__title', id: 'import-title' }, 'Importar'),
+    h('h3', { class: 'panel__title', id: 'import-title' }, 'Importar'),
     h('p', { class: 'panel__text' },
       'Traga de volta um backup exportado antes. Você escolhe se ele se junta aos dados atuais '
       + 'ou se substitui tudo.'),

@@ -61,10 +61,10 @@
 | [CARD-025](07-evolucao/CARD-025-spike-migracao-react.md) | Spike: plano de migração da interface para React | evolucao | spike | P | depois | media | — | descartado | 015, 018 |
 | [CARD-026](06-backup/CARD-026-apagar-todos-os-dados.md) | Apagar todos os dados | backup | feature | P | mvp | baixa | — | done | 016 |
 | [CARD-027](05-favoritos-e-filtros/CARD-027-ordenacao-das-listas.md) | Ordenação das listas | descoberta | feature | M | mvp | baixa | — | done | 008, 015 |
-| [CARD-028](08-v1-1-configuracoes/CARD-028-testes-e-versao-unica.md) | Fundação: testes automatizados e versão única | fundacao-evolucao | setup | M | mvp | media | opus | todo | — |
-| [CARD-029](08-v1-1-configuracoes/CARD-029-tela-de-configuracoes.md) | Tela de Configurações | configuracoes | feature | M | mvp | baixa | sonnet | todo | 028 |
-| [CARD-030](08-v1-1-configuracoes/CARD-030-tema-escuro.md) | Tema escuro | configuracoes | feature | M | mvp | media | sonnet | todo | 029 |
-| [CARD-031](08-v1-1-configuracoes/CARD-031-backup-pelo-compartilhar.md) | Backup pelo compartilhar | configuracoes | feature | P | mvp | media | sonnet | todo | 030 |
+| [CARD-028](08-v1-1-configuracoes/CARD-028-testes-e-versao-unica.md) | Fundação: testes automatizados e versão única | fundacao-evolucao | setup | M | mvp | media | opus | done | — |
+| [CARD-029](08-v1-1-configuracoes/CARD-029-tela-de-configuracoes.md) | Tela de Configurações | configuracoes | feature | M | mvp | baixa | sonnet | done | 028 |
+| [CARD-030](08-v1-1-configuracoes/CARD-030-tema-escuro.md) | Tema escuro | configuracoes | feature | M | mvp | media | sonnet | done | 029 |
+| [CARD-031](08-v1-1-configuracoes/CARD-031-backup-pelo-compartilhar.md) | Backup pelo compartilhar | configuracoes | feature | P | mvp | media | sonnet | done | 030 |
 | [CARD-032](09-v1-2-sair-de-casa/CARD-032-maps-e-compartilhar-lugar.md) | Abrir no Maps e compartilhar lugar | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
 | [CARD-033](09-v1-2-sair-de-casa/CARD-033-sortear-e-atalhos.md) | Sortear um lugar e atalhos do ícone | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
 | [CARD-034](10-v1-3-registros/CARD-034-esquema-v2-e-backup.md) | Esquema v2: campos novos e backup versão 2 | registros | dados | M | mvp | media | opus | todo | 032, 033 |
@@ -301,7 +301,7 @@ A seta 027 → 028 só indica a ordem: o CARD-028 parte do MVP pronto.
 ## Pendências que não são cards
 
 - **Tag `v1.0.0`:** a orquestradora a cria na `main` atual antes de fazer o merge do CARD-028, como manda o refinamento. O push da tag acontece quando o usuário pedir push.
-- **Tipo do arquivo compartilhado (CARD-031):** confirmar no celular se o Chrome Android compartilha `.json`. Se não compartilhar, decidir entre `.json.txt` (recomendado) e manter só o `.json`, antes de delegar.
+- **Tipo do arquivo compartilhado (CARD-031):** resolvido em 14/11/2026: opção A, `.json.txt` (`text/plain`), e o import aceita `.txt`.
 - **Node local (opcional):** sem Node na máquina, os subagentes não conseguem rodar `node --test`, e os testes só rodam no GitHub Actions depois do push da `dev`. Instalar o Node (`winget install OpenJS.NodeJS.LTS`) permite rodar os testes antes do merge.
 - **Releases:** ao fim de cada grupo de ondas (v1.1 a v1.4), quando o usuário pedir.
 

@@ -18,7 +18,7 @@ When implementing a card, read it plus the RF/RN items it references, respect `d
 - HTML + CSS + vanilla JS (ES modules), **no build step, no bundler, no npm dependencies required** (the `idb` wrapper is optional).
 - Run locally with any static server — ES modules don't load over `file://`:
   `python -m http.server 8000` (or VS Code Live Server).
-- Tests are optional; pure functions in `js/services/` can be tested with Node's built-in runner: `node --test` (single file: `node --test path/to/file.test.js`).
+- Tests use Node's built-in runner, with no npm dependencies: `node --test` (single file: `node --test path/to/file.test.js`). **Every new rule in `services/` comes with a unit test** (RNF "Testes automatizados"), next to the module (`js/services/*.test.js`) or in `tests/`; tests must import modules without touching the DOM or IndexedDB, and test files never go into `ASSETS`. The GitHub Actions workflow "Testes" (`.github/workflows/test.yml`) runs `node --test` on every push to `dev` and `main` and on pull requests, so a local Node install is optional. `package.json` only sets `"type": "module"` for Node; the browser ignores it.
 - Deployed to free static hosting with HTTPS (GitHub Pages / Netlify / Cloudflare Pages) — HTTPS is required for the service worker.
 
 ## Architecture
@@ -28,7 +28,7 @@ index.html, manifest.webmanifest, sw.js
 css/app.css
 js/app.js            entry point; registers SW
 js/router.js         hash routes: #/  #/place/new  #/place/:id  #/place/:id/edit
-                     #/place/:id/visit/new  #/visit/:id/edit  #/backup
+                     #/place/:id/visit/new  #/visit/:id/edit  #/settings
 js/db/               only layer that touches IndexedDB
 js/services/         pure business rules, no DOM
 js/ui/screens/, js/ui/components/
@@ -53,7 +53,8 @@ Key invariants that span layers:
 
 ## Service worker gotchas
 
-- Cache is versioned (`diario-vN`). The SW is cache-first and the browser only installs a new SW when `sw.js` itself changes: editing `home.js` alone leaves every installed copy on the old files forever. So **any app change must reach `main` (what GitHub Pages serves) with a bumped version**, not only when files are added. With the git workflow below, card branches never touch `CACHE_VERSION` (parallel bumps would conflict); the bump is a single commit on `dev` right before it is merged into `main`. While developing, use DevTools → Application → Service workers → **Update on reload**.
+- The app version (`MAJOR.MINOR.PATCH`, RN19) is written only in `js/version.js` (classic script: `self.APP_VERSION = '…'`), loaded by `index.html` before the modules and by `sw.js` via `importScripts`. The cache name is derived from it: `CACHE_VERSION = CACHE_PREFIX + self.APP_VERSION` → `diario-<version>`; never write it by hand. `tests/sw.test.js` enforces this link and that `ASSETS` matches the files on disk. UI code reads the version through `getAppVersion()` in `js/services/app-info.js`.
+- The SW is cache-first and the browser only installs a new SW when `sw.js` or a script it imports changes byte for byte: editing `home.js` alone leaves every installed copy on the old files forever. So **any app change must reach `main` (what GitHub Pages serves) with a bumped version in `js/version.js`**, not only when files are added. With the git workflow below, card branches never touch `js/version.js` (parallel bumps would conflict); the bump is a single commit on `dev` right before it is merged into `main`. Don't register the SW with `updateViaCache: 'all'`, or changes to `js/version.js` stop triggering updates. While developing, use DevTools → Application → Service workers → **Update on reload**.
 - With no build, the precache list is a hand-maintained `ASSETS` constant in `sw.js` — **every new file must be added there** or it breaks offline mode.
 - Never cache user data; it lives only in IndexedDB.
 
@@ -77,7 +78,7 @@ The subagent prompt template and the per-card checklist are in `docs/cards/_inde
 **Subagent rules** (the subagent starts with no context and can't ask the user anything, so put these in its prompt along with the card path):
 - Read this CLAUDE.md, the card, the RF/RN items it references in `docs/refinamento.md`, and the premissas in `docs/cards/_index.md`.
 - Create `card/<id>-<slug>` from `dev` inside its worktree, implement only what the card asks (its "Fora do escopo" is binding), and commit only on that branch. Never merge, rebase `dev`, push, or delete branches.
-- Don't touch `CACHE_VERSION`, but do add every new file to `ASSETS` in `sw.js`.
+- Don't touch the version in `js/version.js` or `CHANGELOG.md`, but do add every new file to `ASSETS` in `sw.js`. Write the card's tests and run `node --test` (Node may be missing locally; then say so — CI runs them).
 - Don't change the card's `status` or the `_index.md` table; the orchestrator does that after merging, which avoids conflicts between parallel branches.
 - Nothing to install (no build, no dependencies). If it serves the app to test in headless Chrome, use a port of its own (e.g. 8000 + card number) so parallel agents don't collide.
 - If a decision belongs to the user (business rule, product choice, something the card doesn't define), leave that part out, finish the rest, and return the question.
@@ -88,7 +89,7 @@ The subagent prompt template and the per-card checklist are in `docs/cards/_inde
 2. Review `git diff dev...card/<id>-<slug>` against the card. Fixes go back to the same subagent (SendMessage), which keeps committing on the same branch.
 3. Merge into `dev` one card at a time (`git merge --no-ff`). From the second card of a wave on, first merge `dev` into the card branch and retest. Resolve simple conflicts yourself; a conflict that changes behavior goes to the card's subagent or to the user.
 4. After the merge, set `status: done` (in the card and in `_index.md`) in a commit on `dev`, delete the card branch and its worktree, and tell the user what to validate.
-5. Don't push and don't touch `main` unless the user asks. A release is: bump `CACHE_VERSION` in a commit on `dev`, merge `dev` into `main`, push both.
+5. Don't push and don't touch `main` unless the user asks. A release is: in one commit on `dev`, bump the version in `js/version.js` (RN19: MINOR for features, PATCH for fixes only, MAJOR only when data compatibility breaks) and write its section in `CHANGELOG.md`; merge `dev` into `main`; create the annotated tag `vX.Y.Z` on `main`; push both branches and the tag.
 
 ## Constraints
 
