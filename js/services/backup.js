@@ -62,3 +62,12 @@ export async function countData() {
   const [places, visits] = await Promise.all([placesDb.list(), visitsDb.listAll()]);
   return { places: places.length, visits: visits.length };
 }
+
+/**
+ * Name and MIME type of the backup handed to the share menu (RN18). Chrome for Android
+ * won't share `.json`, so it goes as plain text: `diario-de-role-2026-11-07.json.txt`.
+ * The content is the same JSON as the downloaded file.
+ */
+export function backupShareFile(date = new Date()) {
+  return { name: `${backupFileName(date)}.txt`, type: 'text/plain' };
+}
