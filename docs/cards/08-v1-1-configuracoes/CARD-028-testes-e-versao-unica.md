@@ -8,7 +8,7 @@ complexidade: M
 prioridade: mvp
 incerteza: media
 modelo_sugerido: opus
-status: todo
+status: done
 requisitos: [RN19, RNF-testes, RNF-versao]
 depende_de: []
 ---
