@@ -9,14 +9,14 @@
 - **Total:** 40 cards.
   - Os 20 do MVP estão `done`.
   - Os 7 de evolução antiga estão `descartado`.
-  - Os 13 da evolução 1.1–1.4 estão `todo`.
+  - Dos 13 da evolução 1.1–1.4, 6 estão `done` (CARD-028 a CARD-033, publicados nas releases v1.1.0 e v1.2.0 em 14/11/2026) e 7 estão `todo` (CARD-034 a CARD-040).
 - **Complexidade:**
   - MVP: P 8 · M 12 · G 0.
   - Evolução 1.1–1.4: P 1 · M 12 · G 0.
 - **Modelo sugerido (evolução 1.1–1.4):** opus 2 (CARD-028, CARD-034) · sonnet 11 · haiku 0. Os cards do MVP não têm `modelo_sugerido`, porque já foram implementados.
 - **Precisam de atenção:**
-  - O CARD-031 tem uma decisão pendente: o tipo do arquivo compartilhado (o `.json` pode não ser aceito pelo Chrome Android).
-  - Os cards com incerteza média são CARD-028, CARD-030, CARD-031, CARD-034 e CARD-038.
+  - Os cards pendentes com incerteza média são CARD-034 e CARD-038.
+  - O CARD-034 muda o esquema do banco (v2): antes da release v1.3.0, exporte um backup no celular.
 - **Descartados em 13/11/2026:** CARD-019 a CARD-025 (fotos, mapa, login/sync e React). O app continua 100% local, e esses itens esbarram nesse limite; o motivo de cada um está no [refinamento](../refinamento.md#escopo). Os arquivos ficam como histórico e não devem ser implementados.
 
 ## Fluxo de git
@@ -300,10 +300,10 @@ A seta 027 → 028 só indica a ordem: o CARD-028 parte do MVP pronto.
 
 ## Pendências que não são cards
 
-- **Tag `v1.0.0`:** a orquestradora a cria na `main` atual antes de fazer o merge do CARD-028, como manda o refinamento. O push da tag acontece quando o usuário pedir push.
+- **Tags:** `v1.0.0`, `v1.1.0` e `v1.2.0` criadas e enviadas (14/11/2026).
 - **Tipo do arquivo compartilhado (CARD-031):** resolvido em 14/11/2026: opção A, `.json.txt` (`text/plain`), e o import aceita `.txt`.
-- **Node local (opcional):** sem Node na máquina, os subagentes não conseguem rodar `node --test`, e os testes só rodam no GitHub Actions depois do push da `dev`. Instalar o Node (`winget install OpenJS.NodeJS.LTS`) permite rodar os testes antes do merge.
-- **Releases:** ao fim de cada grupo de ondas (v1.1 a v1.4), quando o usuário pedir.
+- **Node local:** instalado em `C:\Program Files\nodejs`, mas fora do PATH do shell dos agentes. Chame pelo caminho completo e rode `node --test js tests` (sem os argumentos, o Node também acha testes dentro de `.claude/worktrees/`).
+- **Releases:** ao fim de cada grupo de ondas, quando o usuário pedir. v1.1.0 e v1.2.0 publicadas; faltam v1.3.0 e v1.4.0.
 
 ## Premissas assumidas
 
@@ -335,7 +335,7 @@ Detalhes de implementação que o refinamento não fixou e foram decididos na qu
 
 ## Perguntas em aberto
 
-Nenhuma que bloqueie o início. A decisão do CARD-031 precisa ser resolvida antes de delegar esse card.
+Nenhuma. A decisão do CARD-031 foi resolvida em 14/11/2026 (opção A, `.json.txt`).
 
 ## Como implementar um card
 
