@@ -6,7 +6,7 @@ import { showToast } from '../components/toast.js';
 import { confirmDialog } from '../components/confirm-dialog.js';
 import { formatDateTime, formatLocalDate, plural } from '../format.js';
 import {
-  buildBackup, serializeBackup, backupFileName, markExported, getLastExportAt, countData,
+  buildBackup, serializeBackup, backupFileName, backupShareFile, markExported, getLastExportAt, countData,
 } from '../../services/backup.js';
 import { parseBackup, importBackup, IMPORT_MODE } from '../../services/backup-import.js';
 import { eraseAllData } from '../../services/data-reset.js';
@@ -14,6 +14,7 @@ import { ImportError } from '../../services/errors.js';
 import { THEMES, getTheme, setTheme } from '../../services/theme.js';
 import { applyTheme } from '../theme.js';
 import { getAppVersion } from '../../services/app-info.js';
+import { icon } from '../icons.js';
 
 const places = (n) => plural(n, 'lugar', 'lugares');
 const visits = (n) => plural(n, 'visita', 'visitas');
@@ -97,10 +98,39 @@ function buildExportPanel(lastExportAt, counts) {
   showCounts(counts);
   countListeners.push(showCounts);
 
-  const exportButton = h('button', { type: 'button', class: 'btn btn-primary btn-block' }, 'Exportar');
+  const exportButton = h('button', { type: 'button', class: 'btn btn-primary btn-block' }, 'Baixar arquivo');
+  const shareButton = canShareBackupFile()
+    ? h('button', { type: 'button', class: 'btn btn-ghost btn-block' }, icon('share'), 'Compartilhar')
+    : null;
+  const setBusy = (busy) => {
+    exportButton.disabled = busy;
+    if (shareButton) shareButton.disabled = busy;
+  };
+
+  shareButton?.addEventListener('click', async () => {
+    setBusy(true);
+    try {
+      const backup = await buildBackup();
+      const { name, type } = backupShareFile(new Date(backup.exportedAt));
+      const file = new File([serializeBackup(backup)], name, { type });
+      await navigator.share({ files: [file], title: 'Backup do Diário de Rolê' });
+      await markExported(backup.exportedAt);
+      showLastExport(backup.exportedAt);
+      showToast('Backup compartilhado');
+    } catch (error) {
+      // Closing the share menu is not an error: no toast, no date.
+      if (error?.name !== 'AbortError') {
+        console.error(error);
+        showToast('Não foi possível compartilhar. Tente de novo.');
+      }
+    } finally {
+      setBusy(false);
+    }
+  });
+
   exportButton.addEventListener('click', async () => {
-    exportButton.disabled = true;
-    exportButton.textContent = 'Exportando…';
+    setBusy(true);
+    exportButton.textContent = 'Baixando…';
     try {
       const backup = await buildBackup();
       downloadText(serializeBackup(backup), backupFileName(new Date(backup.exportedAt)), 'application/json');
@@ -111,8 +141,8 @@ function buildExportPanel(lastExportAt, counts) {
       console.error(error);
       showToast('Não foi possível exportar. Tente de novo.');
     } finally {
-      exportButton.disabled = false;
-      exportButton.textContent = 'Exportar';
+      setBusy(false);
+      exportButton.textContent = 'Baixar arquivo';
     }
   });
 
@@ -123,8 +153,18 @@ function buildExportPanel(lastExportAt, counts) {
       + 'fora do celular (Drive, e-mail, computador).'),
     countsText,
     lastExportText,
-    exportButton,
+    h('div', { class: 'backup__actions' }, exportButton, shareButton),
   );
+}
+
+/** Whether this browser can share the backup file (tested once, with an empty file of the same name/type). */
+function canShareBackupFile() {
+  try {
+    const { name, type } = backupShareFile();
+    return Boolean(navigator.canShare?.({ files: [new File([], name, { type })] }) && navigator.share);
+  } catch {
+    return false;
+  }
 }
 
 /** Saves text as a file (goes to Downloads on Android). */
@@ -197,7 +237,7 @@ function buildErasePanel(initialCounts) {
 
 function buildImportPanel() {
   const fileInput = h('input', {
-    type: 'file', accept: 'application/json,.json', hidden: true, id: 'import-file', 'aria-label': 'Arquivo de backup',
+    type: 'file', accept: 'application/json,.json,text/plain,.txt', hidden: true, id: 'import-file', 'aria-label': 'Arquivo de backup',
   });
   const pickButton = h('button', { type: 'button', class: 'btn btn-ghost btn-block' }, 'Escolher arquivo');
   const status = h('div', { class: 'import-status', 'aria-live': 'polite' });
