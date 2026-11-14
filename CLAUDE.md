@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Diário de Rolê is a personal, offline-first PWA for tracking bars/restaurants ("Quero ir" → "Já fui") and the visits to each. Implementation follows the cards in wave order; check each card's `status` to see what is built. Planning docs:
 
 - [docs/refinamento.md](docs/refinamento.md) — source of truth: requirements (RF01–RF33), business rules (RN01–RN30), screens (T1–T10), data model, backup format.
-- [docs/cards/_index.md](docs/cards/_index.md) — 27 task cards with dependencies, suggested execution order (waves), and requirement traceability. Each card in `docs/cards/<NN-contexto>/CARD-XXX-*.md` has YAML frontmatter (`status: todo|...`, `depende_de`, `requisitos`) and acceptance criteria.
+- [docs/cards/_index.md](docs/cards/_index.md) — 40 task cards with dependencies, suggested execution order (waves), and requirement traceability. Each card in `docs/cards/<NN-contexto>/CARD-XXX-*.md` has YAML frontmatter (`status: todo|...`, `depende_de`, `requisitos`) and acceptance criteria.
 
 When implementing a card, read it plus the RF/RN items it references, respect `depende_de`, and update its `status` (in the card and in the `_index.md` table) when done. Cards with `status: descartado` (CARD-019 to CARD-025: photos, map, login/sync, React) were dropped on 2026-11-13 because they don't fit a local-only app — don't build them. Features that need a server (login, sync, sharing) belong to a possible new project, not this one.
 
