@@ -4,6 +4,7 @@ import { openDatabase, SchemaMismatchError } from './db/index.js';
 import { requestPersistentStorage } from './db/persistence.js';
 import { registerServiceWorker } from './sw-register.js';
 import { route, replace, startRouter } from './router.js';
+import { initTheme } from './ui/theme.js';
 import { showUpdateBanner } from './ui/components/update-banner.js';
 
 route('/', () => import('./ui/screens/home.js'));
@@ -31,6 +32,7 @@ async function start() {
       : 'Não foi possível abrir o banco de dados do app.';
     return;
   }
+  initTheme().catch((error) => console.warn('Theme:', error));
   requestPersistentStorage().catch((error) => console.warn('Persistent storage:', error));
   startRouter(root);
 }
