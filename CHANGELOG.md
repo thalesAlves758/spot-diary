@@ -2,6 +2,15 @@
 
 Cada versão publicada do Diário de Rolê tem uma seção, da mais recente para a mais antiga, com a data da release e o que mudou. A versão segue `MAIOR.MENOR.CORREÇÃO` (RN19).
 
+## 1.1.0 — 2026-11-14
+
+Configurações.
+
+- **Tela de Configurações** no lugar da tela Backup, aberta pela engrenagem da tela inicial, com as seções Aparência, Backup, Dados e Sobre (versão do app). O link antigo `#/backup` leva para Configurações.
+- **Tema escuro:** escolha entre Automático (segue o celular), Claro e Escuro, salva no aparelho e aplicada desde a abertura, sem piscar.
+- **Backup pelo compartilhar:** além de "Baixar arquivo", o botão "Compartilhar" manda o backup direto para o Drive, WhatsApp ou e-mail, como `diario-de-role-AAAA-MM-DD.json.txt`. O "Importar" aceita também arquivos `.txt`.
+- A versão do app passa a aparecer em Configurações, e os testes automatizados rodam no GitHub Actions.
+
 ## 1.0.0 — 2026-11-08
 
 Primeira versão publicada (MVP).
