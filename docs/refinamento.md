@@ -1,7 +1,7 @@
 # Refinamento — Diário de Rolê
 
 07/11/2026 · Thales Alves · [versão online](https://claude.ai/artifact/2yiGmKhPdsJ64BNrgEHpag)
-Atualizado em 08/11/2026: ordenação das listas (RF19, RN13–RN16, T7). Atualizado em 13/11/2026: fotos, mapa, login/sync e React descartados (RF15–RF17); evolução 1.1–1.4 em quatro ondas (RF20–RF33, RN17–RN30, RNF de testes e versão, T6 renomeada para Configurações e T8–T10 novas, modelo de dados v2, organização do repositório). A versão online não tem essas atualizações.
+Atualizado em 08/11/2026: ordenação das listas (RF19, RN13–RN16, T7). Atualizado em 13/11/2026: fotos, mapa, login/sync e React descartados (RF15–RF17); evolução 1.1–1.4 em quatro ondas (RF20–RF33, RN17–RN30, RNF de testes e versão, T6 renomeada para Configurações e T8–T10 novas, modelo de dados v2, organização do repositório). Atualizado em 14/11/2026: o backup compartilhado vai como `.json.txt` (RN18). A versão online não tem essas atualizações.
 
 ## Visão geral
 

@@ -18,7 +18,7 @@ When implementing a card, read it plus the RF/RN items it references, respect `d
 - HTML + CSS + vanilla JS (ES modules), **no build step, no bundler, no npm dependencies required** (the `idb` wrapper is optional).
 - Run locally with any static server — ES modules don't load over `file://`:
   `python -m http.server 8000` (or VS Code Live Server).
-- Tests use Node's built-in runner, with no npm dependencies: `node --test` (single file: `node --test path/to/file.test.js`). **Every new rule in `services/` comes with a unit test** (RNF "Testes automatizados"), next to the module (`js/services/*.test.js`) or in `tests/`; tests must import modules without touching the DOM or IndexedDB, and test files never go into `ASSETS`. The GitHub Actions workflow "Testes" (`.github/workflows/test.yml`) runs `node --test` on every push to `dev` and `main` and on pull requests, so a local Node install is optional. `package.json` only sets `"type": "module"` for Node; the browser ignores it.
+- Tests use Node's built-in runner, with no npm dependencies: `node --test js tests` (pass the folders so it doesn't pick up tests inside `.claude/worktrees/`; single file: `node --test path/to/file.test.js`). **Every new rule in `services/` comes with a unit test** (RNF "Testes automatizados"), next to the module (`js/services/*.test.js`) or in `tests/`; tests must import modules without touching the DOM or IndexedDB, and test files never go into `ASSETS`. The GitHub Actions workflow "Testes" (`.github/workflows/test.yml`) runs `node --test` on every push to `dev` and `main` and on pull requests, so a local Node install is optional. `package.json` only sets `"type": "module"` for Node; the browser ignores it.
 - Deployed to free static hosting with HTTPS (GitHub Pages / Netlify / Cloudflare Pages) — HTTPS is required for the service worker.
 
 ## Architecture
@@ -35,7 +35,7 @@ js/ui/screens/, js/ui/components/
 ```
 
 Strict layering — business rules stay testable in `services/` and the UI can change without touching them:
-- `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort`). No business rules here.
+- `db/` → opens DB `diario-de-role`, stores `places` (indexes `name`, `type`, `tags` multiEntry, `status` — no `favorite` index because booleans aren't valid IDB keys), `visits` (`placeId`, `date`), `meta` (keyPath `key`: `schemaVersion`, `lastExportAt`, `persistentStorage`, `homeSort`, `theme`). No business rules here.
 - `services/` → status transitions, average, filters, validation, import/export. No DOM.
 - `ui/` → calls only `services/`, never `db/`. No business logic inside event handlers.
 
