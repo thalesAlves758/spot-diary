@@ -340,6 +340,11 @@ function openDrawSheet({ items, status }) {
   if (!drawn) return;
   const cardHost = h('ul', { class: 'card-list draw-card' });
   const again = h('button', { type: 'button', class: 'btn btn-ghost', disabled: items.length < 2 }, 'Sortear de novo');
+  // Tapping the card navigates (renderCard's own handler): close the panel first, in capture phase.
+  // The heart is a sibling of the link, so favoriting leaves the panel open.
+  cardHost.addEventListener('click', (event) => {
+    if (event.target.closest('.place-card')) sheet.close();
+  }, true);
   const paint = () => cardHost.replaceChildren(renderCard(drawn, status));
   paint();
   again.addEventListener('click', () => {
