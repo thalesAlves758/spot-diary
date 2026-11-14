@@ -63,7 +63,7 @@
 | [CARD-027](05-favoritos-e-filtros/CARD-027-ordenacao-das-listas.md) | Ordenação das listas | descoberta | feature | M | mvp | baixa | — | done | 008, 015 |
 | [CARD-028](08-v1-1-configuracoes/CARD-028-testes-e-versao-unica.md) | Fundação: testes automatizados e versão única | fundacao-evolucao | setup | M | mvp | media | opus | done | — |
 | [CARD-029](08-v1-1-configuracoes/CARD-029-tela-de-configuracoes.md) | Tela de Configurações | configuracoes | feature | M | mvp | baixa | sonnet | done | 028 |
-| [CARD-030](08-v1-1-configuracoes/CARD-030-tema-escuro.md) | Tema escuro | configuracoes | feature | M | mvp | media | sonnet | todo | 029 |
+| [CARD-030](08-v1-1-configuracoes/CARD-030-tema-escuro.md) | Tema escuro | configuracoes | feature | M | mvp | media | sonnet | done | 029 |
 | [CARD-031](08-v1-1-configuracoes/CARD-031-backup-pelo-compartilhar.md) | Backup pelo compartilhar | configuracoes | feature | P | mvp | media | sonnet | todo | 030 |
 | [CARD-032](09-v1-2-sair-de-casa/CARD-032-maps-e-compartilhar-lugar.md) | Abrir no Maps e compartilhar lugar | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
 | [CARD-033](09-v1-2-sair-de-casa/CARD-033-sortear-e-atalhos.md) | Sortear um lugar e atalhos do ícone | sair-de-casa | feature | M | mvp | baixa | sonnet | todo | 031 |
