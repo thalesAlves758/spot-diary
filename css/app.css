@@ -529,6 +529,8 @@ select.field__input { appearance: auto; }
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
+.settings-section + .settings-section { margin-top: var(--space-6); }
+.settings-section__title { font-size: var(--font-size-lg); margin-bottom: var(--space-3); }
 .panel + .panel { margin-top: var(--space-4); }
 .panel.danger-panel { margin-top: var(--space-6); border-color: #f5c2c2; }
 .danger-panel .panel__title { color: var(--color-danger); }

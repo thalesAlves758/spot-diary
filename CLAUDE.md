@@ -28,7 +28,7 @@ index.html, manifest.webmanifest, sw.js
 css/app.css
 js/app.js            entry point; registers SW
 js/router.js         hash routes: #/  #/place/new  #/place/:id  #/place/:id/edit
-                     #/place/:id/visit/new  #/visit/:id/edit  #/backup
+                     #/place/:id/visit/new  #/visit/:id/edit  #/settings
 js/db/               only layer that touches IndexedDB
 js/services/         pure business rules, no DOM
 js/ui/screens/, js/ui/components/

@@ -51,7 +51,7 @@ const ASSETS = [
   'js/ui/components/tag-input.js',
   'js/ui/components/toast.js',
   'js/ui/components/update-banner.js',
-  'js/ui/screens/backup.js',
+  'js/ui/screens/settings.js',
   'js/ui/screens/home.js',
   'js/ui/screens/place-detail.js',
   'js/ui/screens/place-form.js',
