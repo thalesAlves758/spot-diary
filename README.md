@@ -68,7 +68,7 @@ O app responde rápido à pergunta "onde a gente vai hoje?". Ele tem uma lista *
 | **Editar lugar** | `#/place/:id/edit` | Mesmo formulário do cadastro, com "Excluir lugar" |
 | **Registrar visita** | `#/place/:id/visit/new` | Data, nota, "voltaria?" e comentário |
 | **Editar visita** | `#/visit/:id/edit` | Mesmo formulário do registro, com "Excluir visita" |
-| **Backup** | `#/backup` | Exportar, importar e apagar todos os dados |
+| **Configurações** | `#/settings` | Preferências, backup, apagar dados e versão |
 
 Os filtros e a ordenação abrem em **painéis inferiores** sobre a tela inicial. Eles não têm rota própria.
 
@@ -83,7 +83,7 @@ flowchart LR
     D -->|salvar: 1ª visita leva para Já fui| C
     C -->|lápis| E[Editar lugar]
     C -->|lápis na visita| F[Editar visita]
-    A -->|ícone de backup| G[Backup]
+    A -->|engrenagem| G[Configurações]
     A -->|Novo na aba Já fui| B2[Novo lugar] -->|salvar| D
 ```
 
@@ -165,7 +165,7 @@ js/
     data-reset.js          apagar todos os dados
     dates.js · errors.js
   ui/
-    screens/               home, place-form, place-detail, visit-form, backup
+    screens/               home, place-form, place-detail, visit-form, settings
     components/            cabeçalho, modal, painel inferior, toast, estrelas, tags…
     dom.js · icons.js · format.js
 docs/                      refinamento e cards

@@ -1,4 +1,4 @@
-// T6 — Settings / Backup. Export: CARD-016. Import: CARD-017. Erase all data: CARD-026.
+// T6 — Configurações. Export: CARD-016. Import: CARD-017. Erase all data: CARD-026. Settings screen: CARD-029.
 import { h } from '../dom.js';
 import { resetTo } from '../../router.js';
 import { createHeader } from '../components/header.js';
@@ -11,6 +11,7 @@ import {
 import { parseBackup, importBackup, IMPORT_MODE } from '../../services/backup-import.js';
 import { eraseAllData } from '../../services/data-reset.js';
 import { ImportError } from '../../services/errors.js';
+import { getAppVersion } from '../../services/app-info.js';
 
 const places = (n) => plural(n, 'lugar', 'lugares');
 const visits = (n) => plural(n, 'visita', 'visitas');
@@ -27,12 +28,23 @@ export async function render(root) {
   countListeners = [];
 
   root.append(
-    createHeader({ title: 'Backup', back: true }),
+    createHeader({ title: 'Configurações', back: true }),
     h('main', { class: 'page' },
-      buildExportPanel(lastExportAt, counts),
-      buildImportPanel(),
-      buildErasePanel(counts),
+      buildSection('Backup',
+        buildExportPanel(lastExportAt, counts),
+        buildImportPanel(),
+      ),
+      buildSection('Dados', buildErasePanel(counts)),
+      buildSection('Sobre', h('p', { class: 'panel__text' }, `Diário de Rolê · Versão ${getAppVersion()}`)),
     ),
+  );
+}
+
+/** A titled block of the settings screen. */
+function buildSection(title, ...content) {
+  return h('section', { class: 'settings-section' },
+    h('h2', { class: 'settings-section__title' }, title),
+    ...content,
   );
 }
 
@@ -74,7 +86,7 @@ function buildExportPanel(lastExportAt, counts) {
   });
 
   return h('section', { class: 'panel', 'aria-labelledby': 'export-title' },
-    h('h2', { class: 'panel__title', id: 'export-title' }, 'Exportar'),
+    h('h3', { class: 'panel__title', id: 'export-title' }, 'Exportar'),
     h('p', { class: 'panel__text' },
       'Seus dados ficam só neste aparelho. Exporte um backup de vez em quando e guarde o arquivo '
       + 'fora do celular (Drive, e-mail, computador).'),
@@ -142,7 +154,7 @@ function buildErasePanel(initialCounts) {
   });
 
   return h('section', { class: 'panel danger-panel', 'aria-labelledby': 'erase-title' },
-    h('h2', { class: 'panel__title', id: 'erase-title' }, 'Apagar dados'),
+    h('h3', { class: 'panel__title', id: 'erase-title' }, 'Apagar dados'),
     h('p', { class: 'panel__text' },
       'Apaga todos os lugares e visitas deste aparelho. Não dá para desfazer: para recuperar, '
       + 'só importando um backup.'),
@@ -176,7 +188,7 @@ function buildImportPanel() {
   });
 
   return h('section', { class: 'panel', 'aria-labelledby': 'import-title' },
-    h('h2', { class: 'panel__title', id: 'import-title' }, 'Importar'),
+    h('h3', { class: 'panel__title', id: 'import-title' }, 'Importar'),
     h('p', { class: 'panel__text' },
       'Traga de volta um backup exportado antes. Você escolhe se ele se junta aos dados atuais '
       + 'ou se substitui tudo.'),
