@@ -310,6 +310,6 @@ Login, listas compartilhadas e colaboração podem virar um projeto novo, com se
 
 ## Documentação do projeto
 
-- [docs/refinamento.md](docs/refinamento.md): visão, escopo, requisitos (RF01–RF19), regras de negócio (RN01–RN16), telas, modelo de dados e riscos. É a fonte de verdade do produto.
+- [docs/refinamento.md](docs/refinamento.md): visão, escopo, requisitos (RF01–RF33), regras de negócio (RN01–RN30), telas, modelo de dados e riscos. É a fonte de verdade do produto.
 - [docs/cards/_index.md](docs/cards/_index.md): os 27 cards, com dependências, ondas de execução, status e a ligação de cada requisito aos cards.
 - [CLAUDE.md](CLAUDE.md): convenções técnicas para quem mexe no código (camadas, navegação, service worker).
